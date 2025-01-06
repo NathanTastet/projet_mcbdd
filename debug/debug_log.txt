@@ -1,0 +1,28 @@
+Array
+(
+    [activityId] => 1
+    [name] => Activité utilisateur
+    [date] => 2025-01-07
+    [startHour] => 12:30:00+01:00
+    [endHour] => 13:30:00+01:00
+    [resources] => Array
+        (
+            [0] => 1
+            [1] => 2
+        )
+
+)
+Array
+(
+    [activityId] => 1
+    [name] => Activité utilisateur
+    [date] => 2025-01-07
+    [startHour] => 12:30:00
+    [endHour] => 13:30:00
+    [resources] => Array
+        (
+            [0] => 1
+            [1] => 2
+        )
+
+)

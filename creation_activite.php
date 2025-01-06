@@ -95,7 +95,7 @@
 </head>
 <body>
     <h1>Ajout d'une activité</h1>
-    <form action="resultat.php" method="POST">
+    <form action="selection_creneaux.php" method="POST">
         <div class="field-group">
             <label for="name">Nom de l'activité :</label>
             <input type="text" id="name" name="name" placeholder="Entrez le nom de l'activité" required>

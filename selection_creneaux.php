@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -42,14 +41,9 @@
         <legend>Résultats</legend>
         <div class="info" id="slot-info">Survolez un créneau pour voir les horaires. Cliquez pour confirmer votre choix.</div>
         <?php
-        $host = 'localhost';
-        $dbname = 'SAE_BDD';
-        $username = 'API';
-        $password = 'azerty';
+            require_once 'db_connection.php'; 
 
         try {
-            $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             // Récupération des données POST
             $groupes = $_POST['groupes'] ?? [];
@@ -155,7 +149,34 @@
                         info.el.style.backgroundColor = 'green';
                     },
                     eventClick: function(info) {
-                        alert(`Créneau confirmé : ${info.event.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${info.event.end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`);
+                        const activityData = {
+                            activityId: 1, // ID fictif, remplacer dynamiquement
+                            name: "Activité utilisateur", // Remplacer dynamiquement
+                            date: info.event.startStr.split('T')[0],
+                            startHour: info.event.startStr.split('T')[1],
+                            endHour: info.event.endStr.split('T')[1],
+                            resources: [1, 2] // Remplacer dynamiquement avec les ressources réelles
+                        };
+
+                        fetch('insert_temp_activity.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(activityData)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Créneau ajouté à la table avec succès !');
+                            } else {
+                                alert('Erreur lors de l\'ajout : ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur :', error);
+                            alert('Une erreur est survenue lors de la communication avec le serveur.');
+                        });
                     }
                 });
                 calendar.render();
