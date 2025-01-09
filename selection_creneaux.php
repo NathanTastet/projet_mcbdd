@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Vérifier si l'utilisateur est connecté, sinon le renvoyer sur login.php
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: index.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -70,44 +80,123 @@
             // Exécuter la requête SQL
             $query = $pdo->query($sql);
             $resultats = $query->fetchAll(PDO::FETCH_ASSOC);
+            
+            $logFile = __DIR__ . '/debug/debug_log.txt';
+            file_put_contents($logFile, print_r($resultats, true));
 
-            // Préparer les créneaux pour le calendrier
+            // $resultats est votre tableau de slots libres, exemple :
+            // [ ['date' => '2025-01-06', 'slot' => 4 ], ['date' => '2025-01-06', 'slot' => 5 ], ... ]
+
+            // ----- 1) Construire le tableau des slots libres par date -----
+            $freeSlotsByDate = [];
+            foreach ($resultats as $row) {
+                $date = $row['date'];
+                $slot = (int)$row['slot'];
+                
+                if (!isset($freeSlotsByDate[$date])) {
+                    $freeSlotsByDate[$date] = [];
+                }
+                $freeSlotsByDate[$date][] = $slot;
+            }
+
+            // ----- 2) Initialiser la liste des blocks (créneaux) -----
             $blocks = [];
             $currentStart = null;
             $currentEnd = null;
 
-            foreach ($resultats as $row) {
-                $slotStart = intval($row['slot']);
-                $slotEnd = $slotStart + ($duree / 15); // Convertir la durée en slots
-                $startHour = 8 + floor(($slotStart - 4) / 4); // Convert slots to hour ranges
-                $startMinutes = (($slotStart - 4) % 4) * 15;
-                $endHour = 8 + floor(($slotEnd - 4) / 4);
-                $endMinutes = (($slotEnd - 4) % 4) * 15;
+            // Durée de votre créneau souhaité (en minutes) - assurez-vous que $duree est défini
+            // Par exemple, si vous voulez des créneaux de 2h (120 minutes), alors:
+            $duree = 120; // A adapter selon votre besoin
 
-                // Vérifier la contrainte : l'heure de fin doit être <= 19h00
-                if ($startHour >= 8 && $endHour < 19 || ($endHour == 19 && $endMinutes == 0)) {
-                    $start = "{$row['date']}T" . str_pad($startHour, 2, '0', STR_PAD_LEFT) . ':' . str_pad($startMinutes, 2, '0', STR_PAD_LEFT);
-                    $end = "{$row['date']}T" . str_pad($endHour, 2, '0', STR_PAD_LEFT) . ':' . str_pad($endMinutes, 2, '0', STR_PAD_LEFT);
+            // ----- 3) Parcourir les dates dans l'ordre -----
+            ksort($freeSlotsByDate); // Tri par date
+            foreach ($freeSlotsByDate as $date => $slots) {
+                // Trier les slots pour cette date
+                sort($slots);
 
-                    if ($currentStart === null) {
-                        $currentStart = $start;
-                        $currentEnd = $end;
-                    } elseif ($start === $currentEnd) {
-                        $currentEnd = $end;
-                    } else {
-                        $blocks[] = [
-                            'start' => $currentStart,
-                            'end' => $currentEnd,
-                            'backgroundColor' => 'green',
-                            'borderColor' => 'darkgreen',
-                            'textColor' => 'white',
-                        ];
-                        $currentStart = $start;
-                        $currentEnd = $end;
+                // ----- 3a) On va parcourir les slots disponibles pour détecter vos créneaux -----
+                // Petite boucle : on essaie chaque slot comme "début" potentiel
+                for ($i = 0; $i < count($slots); $i++) {
+                    $slotStart = $slots[$i];
+                    
+                    // Nombre de slots nécessaires pour $duree (en minutes), slots de 15 minutes
+                    $nbSlotsNeeded = $duree / 15;
+                    // Calcul du slot de fin (non inclus)
+                    $slotEnd = $slotStart + $nbSlotsNeeded;
+                    
+                    // Vérifier que tous les slots [slotStart .. slotEnd-1] sont libres
+                    $allSlotsAvailable = true;
+                    for ($s = $slotStart; $s < $slotEnd; $s++) {
+                        if (!in_array($s, $slots)) {
+                            $allSlotsAvailable = false;
+                            break;
+                        }
                     }
-                }
-            }
 
+                    if ($allSlotsAvailable) {
+                        // ----- 3b) Calcul de l'heure de début/fin -----
+                        //   slot 4  -> 8h00
+                        //   slot 5  -> 8h15...
+                        $startHour = 8 + floor(($slotStart - 4) / 4);
+                        $startMinutes = (($slotStart - 4) % 4) * 15;
+                        
+                        $endHour = 8 + floor(($slotEnd - 4) / 4);
+                        $endMinutes = (($slotEnd - 4) % 4) * 15;
+                        
+                        // ----- 3c) Vérifier la contrainte horaire : 8h <= start < 19h, et end <= 19h -----
+                        //   endHour < 19  ou (endHour == 19 && endMinutes == 0)
+                        //   startHour >= 8
+                        if (
+                            $startHour >= 8 
+                            && (
+                                $endHour < 19 
+                                || ($endHour == 19 && $endMinutes == 0)
+                            )
+                        ) {
+                            // Construire les dates/horaires en format YYYY-MM-DDTHH:MM
+                            $start = sprintf(
+                                "%sT%02d:%02d", 
+                                $date, 
+                                $startHour, 
+                                $startMinutes
+                            );
+                            $end = sprintf(
+                                "%sT%02d:%02d", 
+                                $date, 
+                                $endHour, 
+                                $endMinutes
+                            );
+                            
+                            // ----- 3d) Fusion ou ajout de bloc -----
+                            if ($currentStart === null) {
+                                // Premier créneau
+                                $currentStart = $start;
+                                $currentEnd = $end;
+                            } else {
+                                // Vérifier si ce nouveau créneau commence pile à l'heure de fin du précédent
+                                if ($start === $currentEnd) {
+                                    // Alors on fusionne : on étend la fin de l'ancien créneau
+                                    $currentEnd = $end;
+                                } else {
+                                    // Sinon, on "ferme" le créneau précédent et on en ouvre un nouveau
+                                    $blocks[] = [
+                                        'start' => $currentStart,
+                                        'end' => $currentEnd,
+                                        'backgroundColor' => 'green',
+                                        'borderColor' => 'darkgreen',
+                                        'textColor' => 'white',
+                                    ];
+                                                                        
+                                    $currentStart = $start;
+                                    $currentEnd = $end;
+                                }
+                            }
+                        } // end if contrainte horaire
+                    } // end if allSlotsAvailable
+                } // end for slots
+            } // end foreach date
+
+            // ----- 4) Ajouter le dernier créneau si on en a un en cours -----
             if ($currentStart !== null) {
                 $blocks[] = [
                     'start' => $currentStart,
@@ -126,7 +215,7 @@
         }
         ?>
         <div id="calendar"></div>
-        <button onclick="window.location='index.html'">Retour au menu principal</button>
+        <button onclick="window.location='index.php'">Retour au menu principal</button>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const calendarEl = document.getElementById('calendar');
