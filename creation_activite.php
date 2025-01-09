@@ -15,67 +15,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration de l'EDT</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        form {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .field-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        input[type="text"], input[type="number"], select {
-            width: calc(100% - 20px);
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            background: #3498db;
-            color: #fff;
-            padding: 10px 15px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #2980b9;
-        }
-        .add-btn {
-            background: #2ecc71;
-        }
-        .add-btn:hover {
-            background: #27ae60;
-        }
-        .remove-btn {
-            background: #e74c3c;
-        }
-        .remove-btn:hover {
-            background: #c0392b;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
     <script>
         function addField(containerId) {
             const container = document.getElementById(containerId);
@@ -83,7 +23,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             if (fields.length < 2) {
                 const input = document.createElement("input");
                 input.type = "text";
-                input.name = containerId + "[]";
                 input.placeholder = "Entrez une valeur";
                 input.required = true;
 
@@ -100,11 +39,40 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 container.appendChild(removeBtn);
             }
         }
+
+        // Fonction appelée juste avant l'envoi (submit) du formulaire
+        function fusionnerRessources(event) {
+            // Récupération de tous les inputs de chaque container
+            const groupesInputs = document.querySelectorAll("#groupes-container input[type='text']");
+            const profsInputs   = document.querySelectorAll("#profs-container input[type='text']");
+            const sallesInputs  = document.querySelectorAll("#salles-container input[type='text']");
+
+            // Transformation en tableaux simples (pour .map)
+            const groupes = Array.from(groupesInputs).map(input => input.value.trim());
+            const profs   = Array.from(profsInputs).map(input => input.value.trim());
+            const salles  = Array.from(sallesInputs).map(input => input.value.trim());
+
+            // Fusion en un seul tableau
+            const ressourcesArray = [...groupes, ...profs, ...salles];
+
+            // Conversion en chaîne de caractères (ex: "groupe1,groupe2,prof1,salle1")
+            const ressources = ressourcesArray.join(',');
+
+            // Injection dans le champ caché
+            document.getElementById('ressources').value = ressources;
+        }
+
+        // Dès que la page est chargée, on attache notre écouteur d'événement "submit"
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('form-activite').addEventListener('submit', fusionnerRessources);
+        });
     </script>
 </head>
 <body>
     <h1>Ajout d'une activité</h1>
-    <form action="selection_creneaux.php" method="POST">
+    <!-- Notez l'id="form-activite" pour le script -->
+    <form id="form-activite" action="selection_creneaux.php" method="POST">
+        
         <div class="field-group">
             <label for="name">Nom de l'activité :</label>
             <input type="text" id="name" name="name" placeholder="Entrez le nom de l'activité" required>
@@ -112,26 +80,31 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
         <div class="field-group" id="groupes-container">
             <label>Groupes :</label>
-            <input type="text" name="groupes[]" placeholder="Entrez un groupe" required>
+            <!-- On enlève name="groupes[]" -->
+            <input type="text" placeholder="Entrez un groupe" required>
             <button type="button" class="add-btn" onclick="addField('groupes-container')">+</button>
         </div>
 
         <div class="field-group" id="profs-container">
             <label>Professeurs :</label>
-            <input type="text" name="profs[]" placeholder="Entrez un professeur" required>
+            <!-- On enlève name="profs[]" -->
+            <input type="text" placeholder="Entrez un professeur" required>
             <button type="button" class="add-btn" onclick="addField('profs-container')">+</button>
         </div>
-
+        
         <div class="field-group" id="salles-container">
             <label>Salles :</label>
-            <input type="text" name="salles[]" placeholder="Entrez une salle" required>
+            <!-- On enlève name="salles[]" -->
+            <input type="text" placeholder="Entrez une salle" required>
             <button type="button" class="add-btn" onclick="addField('salles-container')">+</button>
         </div>
+
+        <!-- Le champ caché qui contiendra la fusion -->
+        <input type="hidden" id="ressources" name="ressources" />
 
         <div class="field-group">
             <label>Durée :</label>
             <select name="duree" required>
-                <option value="" disabled selected>Choisissez une durée</option>
                 <option value="15">15min</option>
                 <option value="30">30min</option>
                 <option value="45">45min</option>
@@ -164,32 +137,30 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 <option value="450">7h 30min</option>
                 <option value="465">7h 45min</option>
                 <option value="480">8h 0min</option>
-
             </select>
         </div>
 
         <div class="field-group">
-            <label>Semaine :</label>
-            <select id="semaine" name="semaine" required>
-                <option value="" disabled selected>Choisissez une semaine</option>
-            </select>
-        </div>
-
-        <div class="field-group">
-            <label>Année :</label>
-            <input type="number" name="annee" value="2025" required>
+            <label for="date">Date (jour ouvré) :</label>
+            <input type="date" id="date" name="date" required>
         </div>
 
         <button type="submit">Envoyer</button>
 
         <script>
-            const semaineMenu = document.getElementById('semaine');
-            for (let i = 1; i <= 52; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Semaine ${i}`;
-                semaineMenu.appendChild(option);
-            }
+            // Limitation de l'input date aux jours ouvrés (lundi à vendredi)
+            const dateInput = document.getElementById('date');
+
+            dateInput.addEventListener('input', () => {
+                const selectedDate = new Date(dateInput.value);
+                const dayOfWeek = selectedDate.getUTCDay(); // 0 = dimanche, 6 = samedi
+
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    // Afficher une alerte si c'est un jour non ouvré
+                    alert("Veuillez sélectionner un jour ouvré (lundi à vendredi).");
+                    dateInput.value = ""; // Réinitialiser l'input
+                }
+            });
         </script>
     </form>
 </body>

@@ -12,15 +12,12 @@ WITH RECURSIVE slots AS (
 
 -- Étape 2 : Génération des jours de la semaine spécifiée (lundi à vendredi)
 dates AS (
-    SELECT DATE_ADD(
-               STR_TO_DATE(CONCAT(@annee, LPAD(@semaine, 2, '0'), '1'), '%X%V%w'),
-               INTERVAL n DAY
-           ) AS date
+    SELECT DATE_ADD(DATE_SUB(@selected_date, INTERVAL (DAYOFWEEK(@selected_date) - 2) DAY), INTERVAL n DAY) AS date
     FROM (
         SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
     ) AS nums
-    WHERE DAYOFWEEK(DATE_ADD(STR_TO_DATE(CONCAT(@annee, LPAD(@semaine, 2, '0'), '1'), '%X%V%w'), INTERVAL n DAY)) BETWEEN 2 AND 6
 ),
+
 
 -- Étape 3 : Création de toutes les combinaisons slots/dates
 all_slots AS (
@@ -31,13 +28,17 @@ all_slots AS (
 
 -- Étape 4 : Création des créneaux pris pour toutes les ressources
 taken_slots AS (
-    SELECT DISTINCT activities.date, activities.slot AS start_slot, activities.slot + activities.duration AS end_slot
+    SELECT DISTINCT activities.date, 
+                    activities.slot AS start_slot, 
+                    activities.slot + activities.duration AS end_slot
     FROM activities
-    INNER JOIN activity_resource ON activities.id = activity_resource.idActivity
-    INNER JOIN ressources ON activity_resource.idRessource = ressources.idADE
+    INNER JOIN activity_resource 
+        ON activities.id = activity_resource.idActivity
+    INNER JOIN ressources 
+        ON activity_resource.idRessource = ressources.idADE
     WHERE FIND_IN_SET(ressources.name, @ressources)
-      AND WEEK(activities.date, 1) = @semaine
-      AND YEAR(activities.date) = @annee
+      AND WEEK(activities.date, 1) = WEEK(@selected_date, 1)
+      AND YEAR(activities.date) = YEAR(@selected_date)
 ),
 
 -- Étape 5 : Trouver les slots libres pour toutes les ressources

@@ -1,5 +1,10 @@
 <?php
 session_start();
+//erreurs
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 
 // Vérifier si l'utilisateur est connecté, sinon le renvoyer sur login.php
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -56,14 +61,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         try {
 
             // Récupération des données POST
-            $groupes = $_POST['groupes'] ?? [];
-            $profs = $_POST['profs'] ?? [];
-            $salles = $_POST['salles'] ?? [];
+
             $duree = intval($_POST['duree'] ?? 15); // Durée en minutes
-            $ressourcesArray = array_merge($groupes, $profs, $salles);
-            $ressources = implode(',', $ressourcesArray);
-            $semaine = intval($_POST['semaine']);
-            $annee = intval($_POST['annee']);
+            $name = $_POST['name'] ?? 'Activité sans nom';
+            $ressources = $_POST['ressources'] ?? 0;
+            $date = $_POST['date'] ?? '';
 
             // Charger et préparer le fichier SQL
             $sql_file = 'Commande_Creneaux_Libres.sql';
@@ -71,18 +73,17 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 throw new Exception("Fichier SQL introuvable : $sql_file");
             }
             $sql = file_get_contents($sql_file);
-
+            
+            
             // Remplacement des variables dans le SQL
             $sql = str_replace('@ressources', "'$ressources'", $sql);
-            $sql = str_replace('@semaine', $semaine, $sql);
-            $sql = str_replace('@annee', $annee, $sql);
+            $sql = str_replace('@selected_date', "'$date'", $sql);
+
 
             // Exécuter la requête SQL
             $query = $pdo->query($sql);
             $resultats = $query->fetchAll(PDO::FETCH_ASSOC);
-            
-            $logFile = __DIR__ . '/debug/debug_log.txt';
-            file_put_contents($logFile, print_r($resultats, true));
+
 
             // $resultats est votre tableau de slots libres, exemple :
             // [ ['date' => '2025-01-06', 'slot' => 4 ], ['date' => '2025-01-06', 'slot' => 5 ], ... ]
@@ -99,14 +100,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 $freeSlotsByDate[$date][] = $slot;
             }
 
+
             // ----- 2) Initialiser la liste des blocks (créneaux) -----
             $blocks = [];
             $currentStart = null;
             $currentEnd = null;
-
-            // Durée de votre créneau souhaité (en minutes) - assurez-vous que $duree est défini
-            // Par exemple, si vous voulez des créneaux de 2h (120 minutes), alors:
-            $duree = 120; // A adapter selon votre besoin
 
             // ----- 3) Parcourir les dates dans l'ordre -----
             ksort($freeSlotsByDate); // Tri par date
@@ -206,16 +204,21 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     'textColor' => 'white',
                 ];
             }
-
+            
             echo "<script>const blocks = " . json_encode($blocks) . ";</script>";
+            
         } catch (PDOException $e) {
             echo "Erreur PDO : " . $e->getMessage();
         } catch (Exception $e) {
             echo "Erreur : " . $e->getMessage();
         }
+
         ?>
         <div id="calendar"></div>
-        <button onclick="window.location='index.php'">Retour au menu principal</button>
+        <footer>
+            <button onclick="window.location='index.php'">Retour au menu principal</button>
+            <button onclick="window.history.back()">Retour à la page précédente</button>
+        </footer>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const calendarEl = document.getElementById('calendar');
@@ -224,6 +227,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     locale: 'fr', // Localisation française
                     initialView: 'timeGridWeek',
                     headerToolbar: false, // Bloque la navigation
+                    initialDate: '<?php echo $date; ?>',
                     slotMinTime: "08:00:00",
                     slotMaxTime: "19:00:00",
                     hiddenDays: [0, 6],
