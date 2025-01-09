@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: index.php");
     exit;
@@ -76,30 +77,32 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 </fieldset>
 
 <?php
+// Si l'utilisateur a saisi un nom d'activité
 if (!empty($_POST['activity_name'])) {
     $activityName = trim($_POST['activity_name']);
 
-    require_once 'db_connection.php';
+    // Connexion à la base de données
+    require_once 'db_connection.php'; // Vérifiez le nom exact de votre fichier de connexion
 
     try {
-        // Requête qui fusionne les activités identiques (même nom, date, horaires, durée)
+        // Requête : on sélectionne chaque ligne d'activité,
+        // en JOINTURE avec la ressource correspondante.
+        // 1 ligne = 1 activité * 1 ressource.
         $sql = "
-            SELECT
-                a.name,
-                a.date,
-                a.startHour,
-                a.endHour,
-                a.duration,
-                GROUP_CONCAT(DISTINCT r.name SEPARATOR ', ') AS resource_list
+            SELECT 
+            a.name,
+            a.date,
+            a.startHour,
+            a.endHour,
+            a.duration,
+            GROUP_CONCAT(a.id) AS IDS,                     -- Regroupe les IDs
+            GROUP_CONCAT(r.name) AS resources              -- Regroupe les ressources associées
             FROM activities a
             LEFT JOIN activity_resource ar ON a.id = ar.idActivity
-            LEFT JOIN ressources r ON ar.idRessource = r.id
+            LEFT JOIN ressources r ON ar.idRessource = r.idADE
             WHERE a.name LIKE :searchName
-            GROUP BY a.name,
-                     a.date,
-                     a.startHour,
-                     a.endHour,
-                     a.duration
+            GROUP BY a.name, a.date, a.startHour, a.endHour, a.duration -- Groupement par les colonnes spécifiques
+            ORDER BY a.date, a.startHour;                       -- Optionnel : tri pour lisibilité
         ";
 
         $stmt = $pdo->prepare($sql);
@@ -113,56 +116,72 @@ if (!empty($_POST['activity_name'])) {
                     <th>Date</th>
                     <th>Début</th>
                     <th>Fin</th>
-                    <th>Durée (slots)</th>
-                    <th>Ressources associées</th>
+                    <th>Durée</th>
+                    <th>Ressources</th>
                     <th>Action</th>
                   </tr>";
 
             foreach ($results as $row) {
                 
-                // 1 slot = 15 min (si vous voulez l'afficher en HH:MM, faites la conversion)
-                // Ici, on laisse le champ brut, ou on convertit si besoin
-                $durationSlots = (int) $row['duration'];
-                $resourceDisplay = (!empty($row['resource_list']))
-                    ? $row['resource_list']
-                    : "Aucune ressource associée";
+                // ---- Conversion d'un nombre de slots en heures:minutes ----
+                // Par ex. 4 slots => 4 x 15 = 60 minutes => "1h00"
+                $minutes = $row['duration'] * 15;
+                $hours = floor($minutes / 60);
+                $mins = $minutes % 60;
+                // Format "1h00" ou "2h15"
+                $durationFormatted = $hours . 'h' . str_pad($mins, 2, '0', STR_PAD_LEFT);
+
+                // Ressource associée (peut être NULL si pas de ressource ?)
+                $resourceDisplay = !empty($row['resources']) 
+                ? str_replace(',', ', ', $row['resources'])  // Ajoute un espace après chaque virgule
+                : "Aucune ressource";
+
 
                 echo "<tr>";
                 echo "<td>".htmlspecialchars($row['name'])."</td>";
                 echo "<td>".htmlspecialchars($row['date'])."</td>";
                 echo "<td>".htmlspecialchars($row['startHour'])."</td>";
                 echo "<td>".htmlspecialchars($row['endHour'])."</td>";
-                echo "<td>".$durationSlots."</td>"; 
-                // ou conversion $hours = floor($durationSlots*15 / 60) ...
+                echo "<td>".htmlspecialchars($durationFormatted)."</td>";
                 echo "<td>".htmlspecialchars($resourceDisplay)."</td>";
 
-                // Problème : on n’a plus d’ID unique à modifier (plusieurs activités fusionnées).
-                // Soit on retire le bouton, soit on gère un "Modifier" global.
+                // On conserve l'ID si on veut modifier CET enregistrement précis
                 echo "<td>
                         <form action='modification_activite.php' method='GET' style='margin:0;'>
+                            <input type='hidden' name='idActivity' value='".(int)$row['id']."'>
                             <button type='submit' class='btn-modify'>Modifier</button>
                         </form>
                       </td>";
-                
                 echo "</tr>";
             }
             echo "</table>";
         } else {
+            // Aucune activité trouvée
             echo "<p class='no-result'>Aucune activité trouvée pour le nom : <strong>".htmlspecialchars($activityName)."</strong></p>";
         }
-
     } catch (PDOException $e) {
         echo "Erreur lors de la requête : " . $e->getMessage();
     }
 }
 
-// Si on clique sur "Modifier" alors qu’on n’a plus d’ID unique… à vous de décider la logique !
-// Par exemple, vous pourriez demander d'abord à l'utilisateur de sélectionner laquelle des ID
-// il veut vraiment modifier.
+// Si on a cliqué sur "Modifier"
 if (!empty($_GET['idActivity'])) {
-    // ...
-}
+    $idToModify = (int)$_GET['idActivity'];
 
+    echo "<hr>";
+    echo "<h3>Modification de l'activité ID : $idToModify</h3>";
+    echo "<p>(Ici, vous pouvez afficher un formulaire pour la replanification, la modification des ressources, etc.)</p>";
+
+    // Exemple minimaliste pour récupérer l’activité
+    /*
+    $sqlDetail = "SELECT * FROM activities WHERE id = :id";
+    $stmtDetail = $pdo->prepare($sqlDetail);
+    $stmtDetail->execute(['id' => $idToModify]);
+    $activityData = $stmtDetail->fetch(PDO::FETCH_ASSOC);
+
+    // Ensuite, un formulaire pré-rempli, etc.
+    */
+}
 ?>
 
 </body>
