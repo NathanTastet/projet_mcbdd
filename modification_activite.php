@@ -93,13 +93,13 @@ if (!empty($_POST['activity_name'])) {
                 a.startHour,
                 a.endHour,
                 a.duration,
-                GROUP_CONCAT(a.id) AS IDS,       -- Facultatif si vous voulez manipuler les IDs
+                a.id,
                 GROUP_CONCAT(r.name) AS resources
             FROM activities a
             LEFT JOIN activity_resource ar ON a.id = ar.idActivity
             LEFT JOIN ressources r ON ar.idRessource = r.idADE
             WHERE a.name LIKE :searchName
-            GROUP BY a.name, a.date, a.startHour, a.endHour, a.duration
+            GROUP BY a.name, a.date, a.startHour, a.endHour, a.duration, a.id
             ORDER BY a.date, a.startHour
         ";
 
@@ -148,6 +148,7 @@ if (!empty($_POST['activity_name'])) {
                             <input type='hidden' name='date' value='".htmlspecialchars($row['date'], ENT_QUOTES)."'>
                             <input type='hidden' name='ressources' value='".htmlspecialchars($resourceDisplay, ENT_QUOTES)."'>
                             <input type='hidden' name='duree' value='".htmlspecialchars($minutes, ENT_QUOTES)."'>
+                            <input type='hidden' name='id' value='".htmlspecialchars($row['id'], ENT_QUOTES)."'>
                             <button type='submit' class='btn-modify'>Modifier</button>
                         </form>
                       </td>";

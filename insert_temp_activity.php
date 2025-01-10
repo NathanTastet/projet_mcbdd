@@ -1,8 +1,10 @@
 <?php
+session_start();
 
 // Vérifier si l'utilisateur est connecté, sinon le renvoyer sur login.php
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: index.php");
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté.']);
     exit;
 }
 
@@ -15,9 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Récupération des données sous forme d'objet JSON
     $data = json_decode(file_get_contents('php://input'), true);
+    file_put_contents($logFile, print_r($data, true), FILE_APPEND);
 
-    file_put_contents($logFile, print_r($data, true)); // Inspecter les données JSON reçues
-    
     $activityId = $data['activityId'] ?? null;
     $name = $data['name'] ?? null;
     $date = $data['date'] ?? null;
@@ -25,33 +26,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $endHour = $data['endHour'] ?? null;
     $resources = $data['resources'] ?? [];
 
+    // Retirer les fuseaux horaires pour simplifier
     $startHour = explode('+', $startHour)[0];
     $endHour = explode('+', $endHour)[0];
 
-    file_put_contents($logFile, print_r(compact('activityId', 'name', 'date', 'startHour', 'endHour', 'resources'), true), FILE_APPEND);
-    // test de la conversion
-
-
-
     if ($activityId && $name && $date && $startHour && $endHour) {
         try {
+            // Calcul de la semaine scolaire
+            $startSchoolDate = new DateTime('2024-09-03');
+            $currentDate = new DateTime($date);
+            $weekInterval = $startSchoolDate->diff($currentDate)->days / 7;
+            $week = floor($weekInterval) + 2; // Semaine 2 commence au 2024-09-03
+            // Calcul du jour (1 = lundi, ..., 7 = dimanche)
+            $day = $currentDate->format('N');
+
+            // Calcul des slots
+            $startTime = new DateTime($startHour);
+            $endTime = new DateTime($endHour);
+
+            $baseSlot = 4; // 8h correspond au slot 4
+            $startSlot = $baseSlot + (int)(($startTime->format('H') * 60 + $startTime->format('i')) / 15 - (8 * 60 / 15));
+            $absoluteSlot = $startSchoolDate->diff($currentDate)->days * 96 + $startSlot; // 96 slots par jour
+
+            // Calcul de la durée en minutes
+            $duration = $startTime->diff($endTime)->h * 60 + $startTime->diff($endTime)->i;
+
+            // Valeurs par défaut
+            $repetition = 0;
+            $session = 0;
+            $color = '255,255,255';
+
             // Insertion dans temp_activities
-            $stmt = $pdo->prepare("INSERT INTO temp_activities (activityId, name, date, startHour, endHour) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$activityId, $name, $date, $startHour, $endHour]);
+            $stmt = $pdo->prepare("INSERT INTO temp_activities (repetition, session, activityId, name, week, day, slot, absoluteSlot, date, startHour, endHour, duration, color) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$repetition, $session, $activityId, $name, $week, $day, $startSlot, $absoluteSlot, $date, $startHour, $endHour, $duration, $color]);
 
             // Récupération de l'ID de l'activité temporaire insérée
             $tempActivityId = $pdo->lastInsertId();
 
             // Insertion des ressources associées
             $stmtResource = $pdo->prepare("INSERT INTO temp_activity_resources (idActivity, idRessource) VALUES (?, ?)");
-            foreach ($resources as $resourceId) {
-                $stmtResource->execute([$tempActivityId, $resourceId]);
+            $resourceList = explode(',', $resources);
+            foreach ($resourceList as $resourceId) {
+                $stmtResource->execute([$tempActivityId, trim($resourceId)]);
             }
 
             echo json_encode(['success' => true, 'message' => 'Activité temporaire enregistrée avec succès.']);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'insertion.', 'error' => $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'insertion.' . $e->getMessage(), 'error' => $e->getMessage()]);
         }
     } else {
         http_response_code(400);
@@ -61,4 +84,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
 }
-?>

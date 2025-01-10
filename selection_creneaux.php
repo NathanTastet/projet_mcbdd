@@ -62,10 +62,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
             // Récupération des données POST
 
-            $duree = intval($_POST['duree'] ?? 15); // Durée en minutes
-            $name = $_POST['name'] ?? 'Activité sans nom';
-            $ressources = $_POST['ressources'] ?? 0;
-            $date = $_POST['date'] ?? '';
+            $duree = intval($_POST['duree']); // Durée en minutes
+            $name = $_POST['name'];
+            $ressources = $_POST['ressources'];
+            $date = $_POST['date'];
+            $id = intval($_POST['id']) ?? null;
 
             // Charger et préparer le fichier SQL
             $sql_file = 'Commande_Creneaux_Libres.sql';
@@ -243,13 +244,17 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     },
                     eventClick: function(info) {
                         const activityData = {
-                            activityId: 1, // ID fictif, remplacer dynamiquement
-                            name: "Activité utilisateur", // Remplacer dynamiquement
+                            activityId: "<?php echo $id; ?>",
+                            name: "<?php echo $name; ?>",
                             date: info.event.startStr.split('T')[0],
                             startHour: info.event.startStr.split('T')[1],
                             endHour: info.event.endStr.split('T')[1],
-                            resources: [1, 2] // Remplacer dynamiquement avec les ressources réelles
+                            resources: "<?php echo $ressources; ?>"
                         };
+
+
+                        console.log('Données envoyées :', JSON.stringify(activityData));
+                        
 
                         fetch('insert_temp_activity.php', {
                             method: 'POST',
