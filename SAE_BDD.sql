@@ -2,11 +2,10 @@
 -- version 5.1.1deb5ubuntu1
 -- https://www.phpmyadmin.net/
 --
--- Hôte : localhost
--- Généré le : lun. 06 jan. 2025 à 23:16
+-- Hôte : localhost:3306
+-- Généré le : sam. 11 jan. 2025 à 11:21
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
--- Version de PHP : 8.1.2-1ubuntu2.21
---
+-- Version de PHP : 8.1.2-1ubuntu2.20
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -48835,14 +48834,16 @@ ALTER TABLE `ressources`
 -- Index pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `activityId` (`activityId`),
+  ADD UNIQUE KEY `activityId_2` (`activityId`);
 
 --
 -- Index pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `idActivity` (`idActivity`);
+  ADD KEY `fk_idActivity_activityId` (`idActivity`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
@@ -48882,13 +48883,13 @@ ALTER TABLE `ressources`
 -- AUTO_INCREMENT pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- Contraintes pour les tables déchargées
@@ -48898,7 +48899,7 @@ ALTER TABLE `temp_activity_resources`
 -- Contraintes pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  ADD CONSTRAINT `temp_activity_resources_ibfk_1` FOREIGN KEY (`idActivity`) REFERENCES `temp_activities` (`id`);
+  ADD CONSTRAINT `fk_idActivity_activityId` FOREIGN KEY (`idActivity`) REFERENCES `temp_activities` (`activityId`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
