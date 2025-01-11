@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : sam. 11 jan. 2025 à 12:20
+-- Généré le : sam. 11 jan. 2025 à 12:28
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
 -- Version de PHP : 8.1.2-1ubuntu2.20
 
@@ -32,7 +32,7 @@ CREATE TABLE `activities` (
   `repetition` int DEFAULT NULL,
   `session` int DEFAULT NULL,
   `activityId` int NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `week` int DEFAULT NULL,
   `day` int DEFAULT NULL,
   `slot` int DEFAULT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE `activities` (
   `startHour` time DEFAULT NULL,
   `endHour` time DEFAULT NULL,
   `duration` int DEFAULT NULL,
-  `color` varchar(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  `color` varchar(11) COLLATE utf8mb4_general_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `activities`
@@ -7521,7 +7521,7 @@ CREATE TABLE `activity_resource` (
   `id` int NOT NULL,
   `idActivity` int NOT NULL,
   `idRessource` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `activity_resource`
@@ -48042,8 +48042,8 @@ INSERT INTO `activity_resource` (`id`, `idActivity`, `idRessource`) VALUES
 CREATE TABLE `groupeApogee` (
   `id` int NOT NULL,
   `idADE` int NOT NULL,
-  `apogee` varchar(30) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  `apogee` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `groupeApogee`
@@ -48200,9 +48200,9 @@ INSERT INTO `groupeApogee` (`id`, `idADE`, `apogee`) VALUES
 
 CREATE TABLE `lst_type` (
   `id` int NOT NULL,
-  `name` varchar(250) NOT NULL,
-  `comment` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  `name` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `comment` varchar(250) COLLATE utf8mb4_general_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `lst_type`
@@ -48224,10 +48224,10 @@ INSERT INTO `lst_type` (`id`, `name`, `comment`) VALUES
 CREATE TABLE `ressources` (
   `id` int NOT NULL,
   `idADE` int NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `type_id` int NOT NULL,
   `idPere` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `ressources`
@@ -48772,7 +48772,7 @@ CREATE TABLE `temp_activities` (
   `repetition` int DEFAULT NULL,
   `session` int DEFAULT NULL,
   `activityId` int NOT NULL,
-  `name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `name` varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
   `week` int DEFAULT NULL,
   `day` int DEFAULT NULL,
   `slot` int DEFAULT NULL,
@@ -48781,7 +48781,7 @@ CREATE TABLE `temp_activities` (
   `startHour` time NOT NULL,
   `endHour` time NOT NULL,
   `duration` int DEFAULT NULL,
-  `color` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL
+  `color` varchar(11) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
