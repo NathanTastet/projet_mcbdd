@@ -251,8 +251,49 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     'textColor' => 'white',
                 ];
             }
+
+           // ... Code existant pour construire les blocs verts
+
+        // Ajouter le créneau actuel en rouge si c'est une modification
+        if ($id != 0) {
+            // Récupérer les informations de l'activité existante
+            $stmt = $pdo->prepare("SELECT date, startHour, endHour FROM activities WHERE id = ?");
+            $stmt->execute([$id]);
+            $existingActivity = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            echo "<script>const blocks = " . json_encode($blocks) . ";</script>";
+            if ($existingActivity) {
+                // Construire les valeurs start et end au format ISO8601
+                $start = $existingActivity['date'] . 'T' . $existingActivity['startHour'];
+                $end = $existingActivity['date'] . 'T' . $existingActivity['endHour'];
+
+                // Filtrer et supprimer le bloc vert EXACT qui correspond au même start et end
+                $blocks = array_filter($blocks, function($block) use ($start, $end) {
+                    // On supprime uniquement si backgroundColor est vert et que start/end correspondent exactement
+                    return !(
+                        $block['backgroundColor'] === 'green' &&
+                        $block['start'] === $start &&
+                        $block['end'] === $end
+                    );
+                });
+
+                // Ajouter le bloc actuel en rouge avec une propriété isCurrent pour identification
+                $blocks[] = [
+                    'id' => 'current-event',  // Identifiant unique pour l'événement courant
+                    'start' => $start,
+                    'end' => $end,
+                    'backgroundColor' => 'red',
+                    'borderColor' => 'darkred',
+                    'textColor' => 'white',
+                    'isCurrent' => true
+                ];
+            }
+        }
+
+        // Réindexer le tableau après le filtrage
+        $blocks = array_values($blocks);
+
+        // Encoder le tableau en JSON pour JavaScript
+        echo "<script>const blocks = " . json_encode($blocks) . ";</script>";
             
         } catch (PDOException $e) {
             echo "Erreur PDO : " . $e->getMessage();
@@ -267,65 +308,85 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             <button onclick="window.history.back()">Retour à la page précédente</button>
         </footer>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const calendarEl = document.getElementById('calendar');
-                const infoEl = document.getElementById('slot-info');
-                const calendar = new FullCalendar.Calendar(calendarEl, {
-                    locale: 'fr', // Localisation française
-                    initialView: 'timeGridWeek',
-                    headerToolbar: false, // Bloque la navigation
-                    initialDate: '<?php echo $date; ?>',
-                    slotMinTime: "08:00:00",
-                    slotMaxTime: "19:00:00",
-                    hiddenDays: [0, 6],
-                    allDaySlot: false,
-                    events: blocks,
-                    eventMouseEnter: function(info) {
-                        infoEl.textContent = `Créneau sélectionné : ${info.event.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${info.event.end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
-                        info.el.style.backgroundColor = 'darkgreen';
+        document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const infoEl = document.getElementById('slot-info');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'fr', // Localisation française
+            initialView: 'timeGridWeek',
+            headerToolbar: false, // Bloque la navigation
+            initialDate: '<?php echo $date; ?>',
+            slotMinTime: "08:00:00",
+            slotMaxTime: "19:00:00",
+            hiddenDays: [0, 6],
+            allDaySlot: false,
+            events: blocks,
+            eventMouseEnter: function(info) {
+                const startTime = info.event.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                const endTime = info.event.end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                infoEl.textContent = `Créneau sélectionné : ${startTime} - ${endTime}`;
+
+                // Appliquer un style de survol selon le type de bloc
+                if(info.event.extendedProps.isCurrent) {
+                    // Bloc rouge : changer la couleur au survol
+                    info.el.style.backgroundColor = 'darkred';
+                } else {
+                    // Bloc vert : couleur par défaut ou autre
+                    info.el.style.backgroundColor = 'darkgreen';
+                }
+            },
+            eventMouseLeave: function(info) {
+                infoEl.textContent = "Survolez un créneau pour voir les horaires. Cliquez pour confirmer votre choix.";
+                // Rétablir la couleur originale selon le type de bloc
+                if(info.event.extendedProps.isCurrent) {
+                    info.el.style.backgroundColor = 'red';
+                } else {
+                    info.el.style.backgroundColor = 'green';
+                }
+            },
+            eventClick: function(info) {
+                // Vérifier si l'événement cliqué est le bloc rouge de la position actuelle
+                if(info.event.extendedProps.isCurrent) {
+                    alert("C'est déjà la position actuelle du créneau.");
+                    return;
+                }
+
+                const activityData = {
+                    id: "<?php echo $id; ?>",
+                    name: "<?php echo $name; ?>",
+                    date: info.event.startStr.split('T')[0],
+                    startHour: info.event.startStr.split('T')[1],
+                    endHour: info.event.endStr.split('T')[1],
+                    id_ressources: "<?php echo $id_ressources; ?>"
+                };
+
+                console.log('Données envoyées :', JSON.stringify(activityData));
+
+                fetch('insert_temp_activity.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     },
-                    eventMouseLeave: function(info) {
-                        infoEl.textContent = "Survolez un créneau pour voir les horaires. Cliquez pour confirmer votre choix.";
-                        info.el.style.backgroundColor = 'green';
-                    },
-                    eventClick: function(info) {
-                        const activityData = {
-                            id: "<?php echo $id; ?>",
-                            name: "<?php echo $name; ?>",
-                            date: info.event.startStr.split('T')[0],
-                            startHour: info.event.startStr.split('T')[1],
-                            endHour: info.event.endStr.split('T')[1],
-                            id_ressources: "<?php echo $id_ressources; ?>"
-                        };
-
-
-                        console.log('Données envoyées :', JSON.stringify(activityData));
-                        
-
-                        fetch('insert_temp_activity.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(activityData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert("Créneau ajouté à la table avec succès ! Il faut maintenant attendre la validation de l'admin.");
-                                window.location.href = 'menu.php'; // Redirection après l'alerte
-                            } else {
-                                alert('Erreur lors de l\'ajout : ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur :', error);
-                            alert('Une erreur est survenue lors de la communication avec le serveur.');
-                        });
+                    body: JSON.stringify(activityData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Créneau ajouté à la table avec succès ! Il faut maintenant attendre la validation de l'admin.");
+                        window.location.href = 'menu.php'; // Redirection après l'alerte
+                    } else {
+                        alert('Erreur lors de l\'ajout : ' + data.message);
                     }
+                })
+                .catch(error => {
+                    console.error('Erreur :', error);
+                    alert('Une erreur est survenue lors de la communication avec le serveur.');
                 });
-                calendar.render();
-            });
+            }
+        });
+        calendar.render();
+    });
+
         </script>
     </fieldset>
 </body>

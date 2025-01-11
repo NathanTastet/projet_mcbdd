@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Refus : supprimer simplement la ligne temporaire
             $sqlDeleteTemp = "DELETE FROM temp_activities WHERE id = :tempId";
             $stmtDeleteTemp = $pdo->prepare($sqlDeleteTemp);
-            $stmtDeleteTemp->execute([':tempId' => $id]);
+            $stmtDeleteTemp->execute([':tempId' => $tempId]);
 
             header("Location: supervision.php");
             exit;
