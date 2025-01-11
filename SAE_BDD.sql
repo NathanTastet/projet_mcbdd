@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : sam. 11 jan. 2025 à 11:21
+-- Généré le : sam. 11 jan. 2025 à 12:20
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
 -- Version de PHP : 8.1.2-1ubuntu2.20
 
@@ -48772,7 +48772,7 @@ CREATE TABLE `temp_activities` (
   `repetition` int DEFAULT NULL,
   `session` int DEFAULT NULL,
   `activityId` int NOT NULL,
-  `name` varchar(256) NOT NULL,
+  `name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `week` int DEFAULT NULL,
   `day` int DEFAULT NULL,
   `slot` int DEFAULT NULL,
@@ -48781,8 +48781,15 @@ CREATE TABLE `temp_activities` (
   `startHour` time NOT NULL,
   `endHour` time NOT NULL,
   `duration` int DEFAULT NULL,
-  `color` varchar(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `color` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `temp_activities`
+--
+
+INSERT INTO `temp_activities` (`id`, `repetition`, `session`, `activityId`, `name`, `week`, `day`, `slot`, `absoluteSlot`, `date`, `startHour`, `endHour`, `duration`, `color`) VALUES
+(40, 0, 0, 736, 'Test habilitation', 21, 2, 9, 12777, '2025-01-14', '09:15:00', '11:15:00', 120, '255,255,255');
 
 -- --------------------------------------------------------
 
@@ -48794,7 +48801,16 @@ CREATE TABLE `temp_activity_resources` (
   `id` int NOT NULL,
   `idActivity` int NOT NULL,
   `idRessource` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `temp_activity_resources`
+--
+
+INSERT INTO `temp_activity_resources` (`id`, `idActivity`, `idRessource`) VALUES
+(44, 736, 677),
+(45, 736, 675),
+(46, 736, 10022);
 
 --
 -- Index pour les tables déchargées
@@ -48883,13 +48899,13 @@ ALTER TABLE `ressources`
 -- AUTO_INCREMENT pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- Contraintes pour les tables déchargées
