@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     file_put_contents($logFile, print_r($data, true), FILE_APPEND);
 
-    $activityId = $data['activityId'] ?? null;
+    $id = $data['id'] ?? null;
     $name = $data['name'] ?? null;
     $date = $data['date'] ?? null;
     $startHour = $data['startHour'] ?? null;
@@ -30,28 +30,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $startHour = explode('+', $startHour)[0];
     $endHour = explode('+', $endHour)[0];
 
-    if (!$activityId) { // Nouvelle activité créée : déterminer un nouvel ID qui n'est pas encore utilisé
+    if (!$id) { // Nouvelle activité créée : déterminer un nouvel ID qui n'est pas encore utilisé
     
         try {
             // Récupérer le plus grand ID des deux tables
             $stmt = $pdo->prepare("
                 SELECT MAX(maxId) AS maxId FROM (
-                    SELECT MAX(activityId) AS maxId FROM activities
+                    SELECT MAX(id) AS maxId FROM activities
                     UNION ALL
-                    SELECT MAX(activityId) AS maxId FROM temp_activities
+                    SELECT MAX(id) AS maxId FROM temp_activities
                 ) AS combinedMax");
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
     
             // Générer un nouvel ID
             $maxId = $row['maxId'] ?? 0; // Si aucun ID existant, démarrer à 0
-            $activityId = $maxId + 1; // Nouvel ID = maxId + 1
+            $id= $maxId + 1; // Nouvel ID = maxId + 1
         } catch (Exception $e) {
-            die("Erreur lors de la génération de l'activityId : " . $e->getMessage());
+            die("Erreur lors de la génération de l'id : " . $e->getMessage());
         }
     }
     
-    if ($activityId && $name && $date && $startHour && $endHour) {
+    if ($id && $name && $date && $startHour && $endHour) {
         try {
             // Calcul de la semaine scolaire
             $startSchoolDate = new DateTime('2024-08-19');
@@ -74,21 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Calcul de la durée en slots
             $duration = ($startTime->diff($endTime)->h * 60 + $startTime->diff($endTime)->i) / 15;
 
-            // Valeurs par défaut
-            $repetition = 0;
-            $session = 0;
-            $color = '255,255,255';
-
             // Insertion dans temp_activities
-            $stmt = $pdo->prepare("INSERT INTO temp_activities (repetition, session, activityId, name, week, day, slot, absoluteSlot, date, startHour, endHour, duration, color) 
-                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$repetition, $session, $activityId, $name, $week, $day, $startSlot, $absoluteSlot, $date, $startHour, $endHour, $duration, $color]);
+            $stmt = $pdo->prepare("INSERT INTO temp_activities (id, name, week, day, slot, absoluteSlot, date, startHour, endHour, duration) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id, $name, $week, $day, $startSlot, $absoluteSlot, $date, $startHour, $endHour, $duration]);
 
             // Insertion des ressources associées
             $stmtResource = $pdo->prepare("INSERT INTO temp_activity_resources (idActivity, idRessource) VALUES (?, ?)");
             $resourceList = explode(',', $id_ressources);
             foreach ($resourceList as $resourceId) {
-                $stmtResource->execute([$activityId, trim($resourceId)]);
+                $stmtResource->execute([$id, trim($resourceId)]);
             }
 
             echo json_encode(['success' => true, 'message' => 'Activité temporaire enregistrée avec succès.']);

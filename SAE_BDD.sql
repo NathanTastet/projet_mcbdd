@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : sam. 11 jan. 2025 à 14:40
+-- Généré le : sam. 11 jan. 2025 à 16:05
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
 -- Version de PHP : 8.1.2-1ubuntu2.20
 
@@ -32,7 +32,7 @@ CREATE TABLE `activities` (
   `repetition` int DEFAULT NULL,
   `session` int DEFAULT NULL,
   `activityId` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `week` int DEFAULT NULL,
   `day` int DEFAULT NULL,
   `slot` int DEFAULT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE `activities` (
   `startHour` time DEFAULT NULL,
   `endHour` time DEFAULT NULL,
   `duration` int DEFAULT NULL,
-  `color` varchar(11) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `color` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -48042,7 +48042,7 @@ INSERT INTO `activity_resource` (`id`, `idActivity`, `idRessource`) VALUES
 CREATE TABLE `groupeApogee` (
   `id` int NOT NULL,
   `idADE` int NOT NULL,
-  `apogee` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `apogee` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -48200,8 +48200,8 @@ INSERT INTO `groupeApogee` (`id`, `idADE`, `apogee`) VALUES
 
 CREATE TABLE `lst_type` (
   `id` int NOT NULL,
-  `name` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
-  `comment` varchar(250) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `name` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `comment` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -48224,7 +48224,7 @@ INSERT INTO `lst_type` (`id`, `name`, `comment`) VALUES
 CREATE TABLE `ressources` (
   `id` int NOT NULL,
   `idADE` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `type_id` int NOT NULL,
   `idPere` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -48769,10 +48769,7 @@ INSERT INTO `ressources` (`id`, `idADE`, `name`, `type_id`, `idPere`) VALUES
 
 CREATE TABLE `temp_activities` (
   `id` int NOT NULL,
-  `repetition` int DEFAULT NULL,
-  `session` int DEFAULT NULL,
-  `activityId` int NOT NULL,
-  `name` varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `week` int DEFAULT NULL,
   `day` int DEFAULT NULL,
   `slot` int DEFAULT NULL,
@@ -48780,8 +48777,7 @@ CREATE TABLE `temp_activities` (
   `date` date NOT NULL,
   `startHour` time NOT NULL,
   `endHour` time NOT NULL,
-  `duration` int DEFAULT NULL,
-  `color` varchar(11) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `duration` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -48834,9 +48830,7 @@ ALTER TABLE `ressources`
 -- Index pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `activityId` (`activityId`),
-  ADD UNIQUE KEY `activityId_2` (`activityId`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `temp_activity_resources`
@@ -48883,13 +48877,13 @@ ALTER TABLE `ressources`
 -- AUTO_INCREMENT pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=162251;
 
 --
 -- AUTO_INCREMENT pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- Contraintes pour les tables déchargées
@@ -48899,7 +48893,7 @@ ALTER TABLE `temp_activity_resources`
 -- Contraintes pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  ADD CONSTRAINT `fk_idActivity_activityId` FOREIGN KEY (`idActivity`) REFERENCES `temp_activities` (`activityId`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_activity_id` FOREIGN KEY (`idActivity`) REFERENCES `temp_activities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

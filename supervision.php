@@ -49,36 +49,34 @@ require_once 'db_connection.php';
         $sqlModif = "
             SELECT 
                 tA.id                 AS tempId,
-                tA.activityId         AS activityId,
                 tA.name               AS newName,
                 tA.date               AS newDate,
                 tA.startHour          AS newStartHour,
                 tA.endHour            AS newEndHour,
                 tA.duration           AS newDuration,
-                GROUP_CONCAT(r.name)  AS newRessources,
+                GROUP_CONCAT(DISTINCT r.name ORDER BY r.name ASC)  AS newRessources,
 
                 a.name               AS oldName,
                 a.date               AS oldDate,
                 a.startHour          AS oldStartHour,
                 a.endHour            AS oldEndHour,
                 a.duration           AS oldDuration,
-                GROUP_CONCAT(rOld.name) AS oldRessources
+                GROUP_CONCAT(DISTINCT rOld.name ORDER BY rOld.name ASC) AS oldRessources
 
             FROM temp_activities tA
-            JOIN activities a ON tA.activityId = a.activityId
-            LEFT JOIN temp_activity_resources tAR ON tA.activityId = tAR.idActivity
+            JOIN activities a ON tA.id = a.id
+            LEFT JOIN temp_activity_resources tAR ON tA.id = tAR.idActivity
             LEFT JOIN ressources r ON tAR.idRessource = r.idADE
 
             -- pour les anciennes ressources
-            LEFT JOIN activity_resource arOld ON a.activityId = arOld.idActivity
+            LEFT JOIN activity_resource arOld ON a.id = arOld.idActivity
             LEFT JOIN ressources rOld ON arOld.idRessource = rOld.idADE
 
             GROUP BY 
-                tA.id, tA.activityId, 
-                tA.name, tA.date, tA.startHour, tA.endHour, tA.duration,
-                a.name, a.date, a.startHour, a.endHour, a.duration
+                tA.id
             ORDER BY tA.date, tA.startHour
         ";
+
 
 
         $stmt = $pdo->prepare($sqlModif);
@@ -182,13 +180,13 @@ require_once 'db_connection.php';
 
                 // Actions (Accepter / Refuser)
                 echo "<td>
-                        <form action='traitement_temp_activities.php' method='POST' style='display:inline-block; margin-right:5px;'>
+                        <form action='traitement_supervision.php' method='POST' style='display:inline-block; margin-right:5px;'>
                             <input type='hidden' name='id' value='" . (int)$row['tempId'] . "'>
                             <input type='hidden' name='action' value='accept'>
                             <button type='submit' class='btn-accept'>Accepter</button>
                         </form>
 
-                        <form action='traitement_temp_activities.php' method='POST' style='display:inline-block;'>
+                        <form action='traitement_supervision.php' method='POST' style='display:inline-block;'>
                             <input type='hidden' name='id' value='" . (int)$row['tempId'] . "'>
                             <input type='hidden' name='action' value='refuse'>
                             <button type='submit' class='btn-refuse'>Refuser</button>
@@ -217,7 +215,6 @@ require_once 'db_connection.php';
         $sqlCreate = "
             SELECT 
                 tA.id                 AS tempId,
-                tA.activityId         AS activityId,
                 tA.name               AS name,
                 tA.date               AS date,
                 tA.startHour          AS startHour,
@@ -225,13 +222,12 @@ require_once 'db_connection.php';
                 tA.duration           AS duration,
                 GROUP_CONCAT(r.name)  AS ressources
             FROM temp_activities tA
-            LEFT JOIN activities a ON tA.activityId = a.activityId
-            LEFT JOIN temp_activity_resources tAR ON tA.activityId = tAR.idActivity
+            LEFT JOIN activities a ON tA.id = a.id
+            LEFT JOIN temp_activity_resources tAR ON tA.id = tAR.idActivity
             LEFT JOIN ressources r ON tAR.idRessource = r.idADE
             WHERE a.activityId IS NULL
             GROUP BY 
-                tA.id, tA.activityId, 
-                tA.name, tA.date, tA.startHour, tA.endHour, tA.duration
+                tA.id, tA.name, tA.date, tA.startHour, tA.endHour, tA.duration
             ORDER BY tA.date, tA.startHour
         ";
 
@@ -273,13 +269,13 @@ require_once 'db_connection.php';
 
                 // Boutons Accepter / Refuser
                 echo "<td>
-                        <form action='traitement_temp_activities.php' method='POST' style='display:inline-block; margin-right:5px;'>
+                        <form action='traitement_supervision.php' method='POST' style='display:inline-block; margin-right:5px;'>
                             <input type='hidden' name='id' value='" . (int)$row['tempId'] . "'>
                             <input type='hidden' name='action' value='accept'>
                             <button type='submit' class='btn-accept'>Accepter</button>
                         </form>
 
-                        <form action='traitement_temp_activities.php' method='POST' style='display:inline-block;'>
+                        <form action='traitement_supervision.php' method='POST' style='display:inline-block;'>
                             <input type='hidden' name='id' value='" . (int)$row['tempId'] . "'>
                             <input type='hidden' name='action' value='refuse'>
                             <button type='submit' class='btn-refuse'>Refuser</button>

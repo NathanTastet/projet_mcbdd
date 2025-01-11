@@ -606,3 +606,123 @@ Array
     [endHour] => 13:00:00+01:00
     [id_ressources] => 10022,3675,684
 )
+Début du script
+Array
+(
+    [activityId] => 148326
+    [name] => Hydrogène
+    [date] => 2024-09-19
+    [startHour] => 10:30:00+02:00
+    [endHour] => 11:30:00+02:00
+    [id_ressources] => 21334,644,9240,14387
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => Test
+    [date] => 2025-01-07
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 12827,3675,644
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => Test
+    [date] => 2025-01-07
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 12827,3675,644
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => Test
+    [date] => 2025-01-07
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 12827,3675,644
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => test
+    [date] => 2025-01-09
+    [startHour] => 10:45:00+01:00
+    [endHour] => 12:45:00+01:00
+    [id_ressources] => 12815,3675,685
+)
+Début du script
+Array
+(
+    [id] => 736
+    [name] => Test habilitation
+    [date] => 2025-01-14
+    [startHour] => 10:45:00+01:00
+    [endHour] => 12:45:00+01:00
+    [id_ressources] => 677,675,10022
+)
+Début du script
+Array
+(
+    [id] => 85199
+    [name] => TP AN3 : Anglais
+    [date] => 2024-09-04
+    [startHour] => 11:00:00+02:00
+    [endHour] => 12:00:00+02:00
+    [id_ressources] => 19527,764,17668,25892,13517
+)
+Début du script
+Array
+(
+    [id] => 736
+    [name] => Test habilitation
+    [date] => 2025-01-14
+    [startHour] => 14:00:00+01:00
+    [endHour] => 16:00:00+01:00
+    [id_ressources] => 677,675,10022
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => TestQ UIAEOI OJAIZOIJ 
+    [date] => 2025-01-07
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 15161,3675,644
+)
+Début du script
+Array
+(
+    [id] => 0
+    [name] => Coconut
+    [date] => 2025-01-09
+    [startHour] => 15:00:00+01:00
+    [endHour] => 17:00:00+01:00
+    [id_ressources] => 15162,3675,782
+)
+Début du script
+Array
+(
+    [id] => 162251
+    [name] => Coconut
+    [date] => 2025-01-10
+    [startHour] => 10:30:00+01:00
+    [endHour] => 12:30:00+01:00
+    [id_ressources] => 782,3675,15162
+)
+Début du script
+Array
+(
+    [id] => 162251
+    [name] => Coconut
+    [date] => 2025-01-08
+    [startHour] => 12:45:00+01:00
+    [endHour] => 14:45:00+01:00
+    [id_ressources] => 15162,3675,782,782,3675,15162
+)

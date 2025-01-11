@@ -290,7 +290,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     },
                     eventClick: function(info) {
                         const activityData = {
-                            activityId: "<?php echo $id; ?>",
+                            id: "<?php echo $id; ?>",
                             name: "<?php echo $name; ?>",
                             date: info.event.startStr.split('T')[0],
                             startHour: info.event.startStr.split('T')[1],
