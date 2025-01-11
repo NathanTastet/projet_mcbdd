@@ -94,7 +94,8 @@ if (!empty($_POST['activity_name'])) {
                 a.endHour,
                 a.duration,
                 a.id,
-                GROUP_CONCAT(r.name) AS resources
+                GROUP_CONCAT(r.name) AS ressources,
+                GROUP_CONCAT(r.idADE) AS id_ressources
             FROM activities a
             LEFT JOIN activity_resource ar ON a.id = ar.idActivity
             LEFT JOIN ressources r ON ar.idRessource = r.idADE
@@ -128,8 +129,8 @@ if (!empty($_POST['activity_name'])) {
                 $durationFormatted = $hours . 'h' . str_pad($mins, 2, '0', STR_PAD_LEFT);
 
                 // Ressources associées
-                $resourceDisplay = !empty($row['resources']) 
-                    ? str_replace(',', ', ', $row['resources'])
+                $resourceDisplay = !empty($row['ressources']) 
+                    ? str_replace(',', ', ', $row['ressources'])
                     : "Aucune ressource";
 
                 echo "<tr>";
@@ -149,6 +150,7 @@ if (!empty($_POST['activity_name'])) {
                             <input type='hidden' name='ressources' value='".htmlspecialchars($resourceDisplay, ENT_QUOTES)."'>
                             <input type='hidden' name='duree' value='".htmlspecialchars($minutes, ENT_QUOTES)."'>
                             <input type='hidden' name='id' value='".htmlspecialchars($row['id'], ENT_QUOTES)."'>
+                            <input type='hidden' name='id_ressources' value='".htmlspecialchars($row['id_ressources'], ENT_QUOTES)."'>
                             <button type='submit' class='btn-modify'>Modifier</button>
                         </form>
                       </td>";

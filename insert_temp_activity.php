@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $data['date'] ?? null;
     $startHour = $data['startHour'] ?? null;
     $endHour = $data['endHour'] ?? null;
-    $resources = $data['resources'] ?? [];
+    $id_ressources = $data['id_ressources'] ?? null;
 
     // Retirer les fuseaux horaires pour simplifier
     $startHour = explode('+', $startHour)[0];
@@ -61,14 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$repetition, $session, $activityId, $name, $week, $day, $startSlot, $absoluteSlot, $date, $startHour, $endHour, $duration, $color]);
 
-            // Récupération de l'ID de l'activité temporaire insérée
-            $tempActivityId = $pdo->lastInsertId();
-
             // Insertion des ressources associées
             $stmtResource = $pdo->prepare("INSERT INTO temp_activity_resources (idActivity, idRessource) VALUES (?, ?)");
-            $resourceList = explode(',', $resources);
+            $resourceList = explode(',', $id_ressources);
             foreach ($resourceList as $resourceId) {
-                $stmtResource->execute([$tempActivityId, trim($resourceId)]);
+                $stmtResource->execute([$activityId, trim($resourceId)]);
             }
 
             echo json_encode(['success' => true, 'message' => 'Activité temporaire enregistrée avec succès.']);

@@ -1,9 +1,9 @@
 <?php
 session_start();
 //erreurs
-ini_set('display_errors', 1);
+/* ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL);*/
 
 
 // Vérifier si l'utilisateur est connecté, sinon le renvoyer sur login.php
@@ -64,11 +64,53 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
             $duree = intval($_POST['duree']); // Durée en minutes
             $name = $_POST['name'];
-            $ressources = $_POST['ressources'];
+            $ressources = $_POST['ressources'] ?? null;
             $date = $_POST['date'];
-            $id = intval($_POST['id']) ?? null;
+            $id = intval($_POST['id']) ?? 0; //0 = nouvelle activité
+            $id_ressources = $_POST['id_ressources'] ?? null;
+            
+            // Si on a pas d'IDADE pour les ressources (ressources entrées lors de la création de l'activité)
+            // on va chercher les IDADE correspondants aux noms des ressources
 
-            // Charger et préparer le fichier SQL
+            if ($id_ressources == null && $ressources) {
+                // Séparer les noms des ressources
+                $resource_names = explode(',', $ressources);
+            
+                // Initialiser un tableau pour les IDs des ressources
+                $id_ressources_array = [];
+            
+                // Préparer la requête pour récupérer un idADE pour chaque ressource
+                $sql = "SELECT idADE FROM ressources WHERE name = ?";
+                $stmt = $pdo->prepare($sql);
+            
+                // Parcourir chaque ressource
+                foreach ($resource_names as $resource_name) {
+                    // Exécuter la requête pour cette ressource
+                    $stmt->execute([$resource_name]);
+                    $idADE = $stmt->fetchColumn();
+            
+                    // Si un ID est trouvé, l'ajouter au tableau, sinon ajouter 0
+                    if ($idADE !== false) {
+                        $id_ressources_array[] = $idADE;
+                    } else {
+                        $id_ressources_array[] = 0; // Aucun ID trouvé, ajouter 0
+                    }
+                }
+            
+                // Convertir le tableau d'IDs en une chaîne séparée par des virgules
+                $id_ressources = implode(',', $id_ressources_array);
+            }
+
+            // Afficher le résultat (pour débogage)
+            /*if ($id_ressources) {
+                echo "ID des ressources trouvées : $id_ressources";
+            } else {
+                echo "Erreur ! Aucune ressource trouvée ou aucune ressource fournie.";
+            }*/
+
+
+
+            // Charger et préparer le fichier SQL de sélection des créneaux libres
             $sql_file = 'Commande_Creneaux_Libres.sql';
             if (!file_exists($sql_file)) {
                 throw new Exception("Fichier SQL introuvable : $sql_file");
@@ -249,7 +291,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                             date: info.event.startStr.split('T')[0],
                             startHour: info.event.startStr.split('T')[1],
                             endHour: info.event.endStr.split('T')[1],
-                            resources: "<?php echo $ressources; ?>"
+                            id_ressources: "<?php echo $id_ressources; ?>"
                         };
 
 
