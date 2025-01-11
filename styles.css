@@ -1,3 +1,4 @@
+/* ----- Styles généraux ----- */
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f9f9f9;
@@ -8,9 +9,11 @@ body {
 
 h1 {
     text-align: center;
+    margin-bottom: 30px;
     color: #2c3e50;
 }
 
+/* ----- Formulaires et champs (pour création/modification) ----- */
 form {
     max-width: 600px;
     margin: 0 auto;
@@ -30,9 +33,9 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="text"], 
-input[type="number"], 
-input[type="date"], 
+input[type="text"],
+input[type="number"],
+input[type="date"],
 select {
     width: calc(100% - 20px);
     padding: 10px;
@@ -44,12 +47,12 @@ select {
     color: #333;
 }
 
+/* Style particulier pour les dates */
 input[type="date"] {
     font-family: 'Roboto', sans-serif;
-    -webkit-appearance: none; /* Supprimer le style par défaut */
+    -webkit-appearance: none;
     appearance: none;
 }
-
 input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: #3498db;
     color: #fff;
@@ -58,32 +61,245 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 
-button {
+/* ----- Boutons ----- */
+button{
     background: #3498db;
-    color: #fff;
+    color: #fff !important;
     padding: 10px 15px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-decoration: none;
 }
-
-button:hover {
+button:hover{
     background: #2980b9;
 }
 
+/* ----- Barre de statut (top) ----- */
+.status-bar {
+    background: #eee;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* ----- Footer (principal ou menu) ----- */
+.footer {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* ----- Footer avec noms / mention ----- */
+.credits {
+    margin-top: 50px;
+    text-align: center;
+    color: #888;
+}
+
+/* ----- Bouton rouge "Se déconnecter" ----- */
+.btn-logout {
+    background-color: #e74c3c;
+    color: #fff !important;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+.btn-logout:hover {
+    background-color: #c0392b;
+}
+
+/* ----- Bouton retour menu (bleu) ----- */
+.btn-menu {
+    background-color: #3498db;
+    color: #fff !important;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    margin-left: 10px;
+}
+.btn-menu:hover {
+    background-color: #2980b9;
+}
+
+/* ----- Lien "Supervision (ADMIN) - Accès restreint" ----- */
+.access-restricted {
+    color: #888; 
+    text-align: center; 
+    margin-top: 20px;
+}
+
+/* ----- Lien de déconnexion dans le menu ----- */
+.logout-link {
+    text-align: center; 
+    margin-top: 20px;
+}
+/* etc. */
+
+
+
+/* Bouton d'ajout */
 .add-btn {
     background: #2ecc71;
 }
-
 .add-btn:hover {
     background: #27ae60;
 }
 
+/* Bouton de suppression */
 .remove-btn {
     background: #e74c3c;
 }
-
 .remove-btn:hover {
     background: #c0392b;
+}
+
+/* Bouton "Modifier" (listes d'activités) */
+.btn-modify {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-modify:hover {
+    background-color: #2980b9;
+}
+
+/* ----- Fieldset + legend (utilisé sur la page de modification) ----- */
+fieldset {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #dedede;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+legend {
+    font-weight: bold;
+    padding: 0 8px;
+}
+
+/* ----- Zone de recherche (modification) ----- */
+.search-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.search-field label {
+    font-weight: bold;
+}
+.search-field input[type="text"] {
+    padding: 6px;
+    width: 220px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.search-field button {
+    padding: 6px 12px;
+    cursor: pointer;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+.search-field button:hover {
+    background-color: #2980b9;
+}
+
+/* ----- Tableau des activités (page modification) ----- */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+th, td {
+    border: 1px solid #eee;
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+tr:nth-child(even) td {
+    background-color: #fcfcfc;
+}
+
+/* Message "Aucun résultat" */
+.no-result {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* ----- Awesomplete (autocomplétion) ----- */
+.awesomplete {
+    display: inline-block;
+}
+.awesomplete > input {
+    width: 100% !important;
+}
+
+/* ----- Footer ----- */
+footer.footer {
+    margin-top: 40px;
+    text-align: center;
+}
+.footer-btn {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+/* ----- Styles pour la page menu.php ----- */
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+.menu a {
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    padding: 10px;
+    color: white; /* Couleur du texte */
+    background: #3498db; /* Couleur de fond du bouton */
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+.menu a:hover {
+    background: #2980b9;
+}
+.access-restricted {
+    color: #888; 
+    text-align: center; 
+    margin: 0; /* p par défaut */
+}
+.logout-link {
+    text-align: center; 
+    margin-top: 20px;
+}
+.logout-link a {
+    color: red;
+    text-decoration: none;
+    font-weight: bold;
+}
+.logout-link a:hover {
+    opacity: 0.8;
 }

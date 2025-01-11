@@ -1,75 +1,64 @@
 <?php
 session_start();
 
-// Vérifier si l'utilisateur est connecté, sinon le renvoyer sur login.php
+// Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: index.php");
     exit;
 }
+
+// On récupère le rôle stocké en session, ou "guest" par défaut
+$userRole = isset($_SESSION['role']) ? $_SESSION['role'] : 'guest';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Menu Principal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .menu {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .menu a {
-            text-decoration: none;
-            text-align: center;
-            display: block;
-            padding: 10px;
-            color: white;
-            background: #3498db;
-            border-radius: 5px;
-            transition: background 0.3s ease;
-        }
-        .menu a:hover {
-            background: #2980b9;
-        }
-    </style>
+    <!-- Import du fichier CSS global -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Menu Principal</h1>
-        <div class="menu">
-            <a href="creation_activite.php">Créer une nouvelle activité</a>
-            <a href="modification_activite.php">Modifier une activité existante</a>
 
-            <!-- On peut afficher le lien ADMIN uniquement si l'utilisateur est admin -->
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "admin"): ?>
-                <a href="supervision.php">Supervision (ADMIN)</a>
-            <?php else: ?>
-                <!-- Soit ne rien afficher, soit afficher un lien grisé, etc. -->
-                <p style="color: #888; text-align:center;">Supervision (ADMIN) - Accès restreint</p>
-            <?php endif; ?>
-        </div>
+<!-- Barre de statut (top) : affiche si on est connecté en 'admin' ou 'guest' -->
+<div class="status-bar">
+    <?php
+        if ($userRole === 'admin') {
+            echo "Vous êtes connecté en tant qu'admin";
+        } else {
+            echo "Vous êtes connecté en tant que guest";
+        }
+    ?>
+</div>
 
-        <p style="text-align:center; margin-top:20px;">
-            <a href="logout.php" style="color:red;">Se déconnecter</a>
-        </p>
+<div class="container">
+    <h1>Menu Principal</h1>
+    <div class="menu">
+        <a href="creation_activite.php">Créer une nouvelle activité</a>
+        <a href="modification_activite.php">Modifier une activité existante</a>
+
+        <!-- Afficher le lien ADMIN uniquement si l'utilisateur est admin -->
+        <?php if ($userRole === 'admin'): ?>
+            <a href="supervision.php">Supervision (ADMIN)</a>
+        <?php else: ?>
+            <p class="access-restricted">Supervision (ADMIN) - Accès restreint</p>
+        <?php endif; ?>
     </div>
+
+    <!-- Bouton de déconnexion, en rouge -->
+    <p class="logout-link">
+        <a href="logout.php" class="btn-logout">Se déconnecter</a>
+    </p>
+</div>
+
+<!-- Footer avec les noms des étudiants et la mention -->
+<footer class="credits">
+    <p>
+        Nathan TASTET, Anis ZOUITER, Daphné RODELET, Faustine BONNEFOY, Guillaume TERRAS
+        <br><br>
+        Janvier 2025 - IUT Lyon 1
+    </p>
+</footer>
+
 </body>
 </html>

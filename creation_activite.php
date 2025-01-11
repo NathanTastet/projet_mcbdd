@@ -283,6 +283,9 @@ foreach ($allRows as $row) {
 
         <button type="submit">Envoyer</button>
     </form>
-
+    <footer class="footer">
+    <a href="logout.php" class="footer-btn btn-logout">Se déconnecter</a>
+    <a href="menu.php" class="footer-btn btn-menu">Menu principal</a>
+    </footer>
 </body>
 </html>

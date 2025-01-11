@@ -6,71 +6,47 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: index.php");
     exit;
 }
-?>
 
+// Connexion à la base de données
+require_once 'db_connection.php'; 
+
+// On va préparer la liste de tous les noms d’activités pour l’auto-complétion
+$allActivityNames = [];
+try {
+    // On récupère tous les noms distincts d'activités
+    $stmt = $pdo->prepare("SELECT DISTINCT name FROM activities ORDER BY name");
+    $stmt->execute();
+    $allActivityNames = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+} catch (Exception $e) {
+    die("Erreur lors de la récupération des noms d’activités : " . $e->getMessage());
+}
+
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Modification d'une activité</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        fieldset {
-            margin-bottom: 20px;
-        }
-        legend {
-            font-weight: bold;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        tr:nth-child(even){
-            background-color: #f2f2f2;
-        }
-        .search-field {
-            margin-bottom: 10px;
-        }
-        .search-field input[type="text"] {
-            padding: 5px;
-            width: 200px;
-        }
-        .search-field button {
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        .btn-modify {
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-        }
-        .btn-modify:hover {
-            background-color: #2980b9;
-        }
-        .no-result {
-            color: red;
-        }
-    </style>
+
+    <!-- Import du CSS Awesomplete pour l'autocomplétion -->
+    <link rel="stylesheet" href="libs/awesomeplete.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<h1>Modification d'une activité</h1>
 
 <fieldset>
     <legend>Recherche d'activité à modifier</legend>
     <form method="POST" action="modification_activite.php">
         <div class="search-field">
-            <label for="activity_name">Nom de l'activité&nbsp;:</label>
-            <input type="text" name="activity_name" id="activity_name" placeholder="Entrez le nom de l'activité">
+            <label for="activity_name">Nom de l'activité :</label>
+            <input 
+                type="text" 
+                name="activity_name" 
+                id="activity_name" 
+                placeholder="Entrez le nom de l'activité"
+            >
             <button type="submit">Rechercher</button>
         </div>
     </form>
@@ -80,9 +56,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Si l'utilisateur a saisi un nom d'activité
 if (!empty($_POST['activity_name'])) {
     $activityName = trim($_POST['activity_name']);
-
-    // Connexion à la base de données
-    require_once 'db_connection.php'; // Assurez-vous du nom exact
 
     try {
         // Requête : on sélectionne chaque (groupe d')activité(s)
@@ -122,7 +95,7 @@ if (!empty($_POST['activity_name'])) {
 
             foreach ($results as $row) {
                 
-                // Conversion d'un nombre de slots en heures:minutes
+                // Conversion d'un nombre de slots (duration) en heures:minutes
                 $minutes = $row['duration'] * 15;
                 $hours = floor($minutes / 60);
                 $mins = $minutes % 60;
@@ -142,7 +115,7 @@ if (!empty($_POST['activity_name'])) {
                 echo "<td>".htmlspecialchars($resourceDisplay)."</td>";
 
                 // FORMULAIRE POST pour aller vers selection_creneaux.php
-                // en envoyant le nom de l'activité, les ressources, la semaine et l'année
+                // en envoyant les infos nécessaires à la modification
                 echo "<td>
                         <form action='selection_creneaux.php' method='POST' style='margin:0;'>
                             <input type='hidden' name='name' value='".htmlspecialchars($row['name'], ENT_QUOTES)."'>
@@ -165,11 +138,26 @@ if (!empty($_POST['activity_name'])) {
         echo "Erreur lors de la requête : " . $e->getMessage();
     }
 }
-
-// Ici, on n'a plus nécessairement besoin du GET['idActivity'],
-// car on redirige la modification vers selection_creneaux.php en POST.
-// Mais vous pouvez laisser un code similaire si vous gérez deux scénarios différents.
 ?>
+
+<!-- Import du JS Awesomplete pour l'autocomplétion -->
+<script src="libs/awesomeplete.min.js"></script>
+<script>
+    // Liste de tous les noms d'activités récupérés en PHP
+    const allActivities = <?php echo json_encode($allActivityNames); ?>;
+
+    // On initialise Awesomplete sur le champ de saisie
+    const inputActivity = document.getElementById('activity_name');
+    new Awesomplete(inputActivity, {
+        list: allActivities,
+        minChars: 1,
+        autoFirst: true
+    });
+</script>
+<footer class="footer">
+    <a href="logout.php" class="footer-btn btn-logout">Se déconnecter</a>
+    <a href="menu.php" class="footer-btn btn-menu">Menu principal</a>
+</footer>
 
 </body>
 </html>

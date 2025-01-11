@@ -356,3 +356,33 @@ Array
     [endHour] => 11:45:00+01:00
     [id_ressources] => 675,10023,677
 )
+Début du script
+Array
+(
+    [activityId] => 736
+    [name] => Test habilitation
+    [date] => 2025-01-15
+    [startHour] => 10:30:00+01:00
+    [endHour] => 12:30:00+01:00
+    [id_ressources] => 677,675,10022
+)
+Début du script
+Array
+(
+    [activityId] => 736
+    [name] => Test habilitation
+    [date] => 2025-01-15
+    [startHour] => 08:30:00+01:00
+    [endHour] => 10:30:00+01:00
+    [id_ressources] => 677,675,10022
+)
+Début du script
+Array
+(
+    [activityId] => 736
+    [name] => Test habilitation
+    [date] => 2025-01-14
+    [startHour] => 09:15:00+01:00
+    [endHour] => 11:15:00+01:00
+    [id_ressources] => 677,675,10022
+)
