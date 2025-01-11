@@ -23,7 +23,6 @@ require_once 'db_connection.php';
     <title>Supervision - Temp Activities</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles_super.css">
-    <!-- Vous pouvez déplacer ce style dans votre fichier CSS -->
     
 </head>
 <body>
@@ -66,12 +65,12 @@ require_once 'db_connection.php';
                 GROUP_CONCAT(rOld.name) AS oldRessources
 
             FROM temp_activities tA
-            JOIN activities a ON tA.activityId = a.id
-            LEFT JOIN temp_activity_resources tAR ON tA.id = tAR.idActivity
+            JOIN activities a ON tA.activityId = a.activityId
+            LEFT JOIN temp_activity_resources tAR ON tA.activityId = tAR.idActivity
             LEFT JOIN ressources r ON tAR.idRessource = r.idADE
 
             -- pour les anciennes ressources
-            LEFT JOIN activity_resource arOld ON a.id = arOld.idActivity
+            LEFT JOIN activity_resource arOld ON a.activityId = arOld.idActivity
             LEFT JOIN ressources rOld ON arOld.idRessource = rOld.idADE
 
             GROUP BY 
@@ -80,6 +79,7 @@ require_once 'db_connection.php';
                 a.name, a.date, a.startHour, a.endHour, a.duration
             ORDER BY tA.date, tA.startHour
         ";
+
 
         $stmt = $pdo->prepare($sqlModif);
         $stmt->execute();
@@ -225,15 +225,16 @@ require_once 'db_connection.php';
                 tA.duration           AS duration,
                 GROUP_CONCAT(r.name)  AS ressources
             FROM temp_activities tA
-            LEFT JOIN activities a ON tA.activityId = a.id
-            LEFT JOIN temp_activity_resources tAR ON tA.id = tAR.idActivity
+            LEFT JOIN activities a ON tA.activityId = a.activityId
+            LEFT JOIN temp_activity_resources tAR ON tA.activityId = tAR.idActivity
             LEFT JOIN ressources r ON tAR.idRessource = r.idADE
-            WHERE a.id IS NULL
+            WHERE a.activityId IS NULL
             GROUP BY 
                 tA.id, tA.activityId, 
                 tA.name, tA.date, tA.startHour, tA.endHour, tA.duration
             ORDER BY tA.date, tA.startHour
         ";
+
 
         $stmt = $pdo->prepare($sqlCreate);
         $stmt->execute();

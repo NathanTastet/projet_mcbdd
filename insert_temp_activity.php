@@ -30,11 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $startHour = explode('+', $startHour)[0];
     $endHour = explode('+', $endHour)[0];
 
-    if (!$activityId) {//nouvelle activité créée : déterminer un nouvel ID qui n'est pas encore utilisé
+    if (!$activityId) { // Nouvelle activité créée : déterminer un nouvel ID qui n'est pas encore utilisé
     
-        // Trouver le plus grand ID existant dans la table activities
         try {
-            $stmt = $pdo->prepare("SELECT MAX(activityId) AS maxId FROM activities");
+            // Récupérer le plus grand ID des deux tables
+            $stmt = $pdo->prepare("
+                SELECT MAX(maxId) AS maxId FROM (
+                    SELECT MAX(activityId) AS maxId FROM activities
+                    UNION ALL
+                    SELECT MAX(activityId) AS maxId FROM temp_activities
+                ) AS combinedMax");
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -45,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Erreur lors de la génération de l'activityId : " . $e->getMessage());
         }
     }
-
+    
     if ($activityId && $name && $date && $startHour && $endHour) {
         try {
             // Calcul de la semaine scolaire

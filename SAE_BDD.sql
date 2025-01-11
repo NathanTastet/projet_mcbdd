@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : sam. 11 jan. 2025 à 12:28
+-- Généré le : sam. 11 jan. 2025 à 14:40
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
 -- Version de PHP : 8.1.2-1ubuntu2.20
 
@@ -48784,13 +48784,6 @@ CREATE TABLE `temp_activities` (
   `color` varchar(11) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Déchargement des données de la table `temp_activities`
---
-
-INSERT INTO `temp_activities` (`id`, `repetition`, `session`, `activityId`, `name`, `week`, `day`, `slot`, `absoluteSlot`, `date`, `startHour`, `endHour`, `duration`, `color`) VALUES
-(40, 0, 0, 736, 'Test habilitation', 21, 2, 9, 12777, '2025-01-14', '09:15:00', '11:15:00', 120, '255,255,255');
-
 -- --------------------------------------------------------
 
 --
@@ -48802,15 +48795,6 @@ CREATE TABLE `temp_activity_resources` (
   `idActivity` int NOT NULL,
   `idRessource` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Déchargement des données de la table `temp_activity_resources`
---
-
-INSERT INTO `temp_activity_resources` (`id`, `idActivity`, `idRessource`) VALUES
-(44, 736, 677),
-(45, 736, 675),
-(46, 736, 10022);
 
 --
 -- Index pour les tables déchargées
@@ -48899,13 +48883,13 @@ ALTER TABLE `ressources`
 -- AUTO_INCREMENT pour la table `temp_activities`
 --
 ALTER TABLE `temp_activities`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT pour la table `temp_activity_resources`
 --
 ALTER TABLE `temp_activity_resources`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- Contraintes pour les tables déchargées

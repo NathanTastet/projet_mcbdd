@@ -486,3 +486,123 @@ Array
     [endHour] => 18:00:00+01:00
     [id_ressources] => 12829,3675,640
 )
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => TAco bell
+    [date] => 2025-01-09
+    [startHour] => 10:45:00+01:00
+    [endHour] => 12:45:00+01:00
+    [id_ressources] => 13519,3675,685
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Fried Chickhen
+    [date] => 2025-01-15
+    [startHour] => 10:00:00+01:00
+    [endHour] => 12:00:00+01:00
+    [id_ressources] => 12828,3675,640
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => test
+    [date] => 2025-01-09
+    [startHour] => 10:00:00+01:00
+    [endHour] => 12:00:00+01:00
+    [id_ressources] => 12827,3675,641
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Frite
+    [date] => 2025-01-09
+    [startHour] => 08:00:00+01:00
+    [endHour] => 10:00:00+01:00
+    [id_ressources] => 15161,3675,710
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Frite
+    [date] => 2025-01-14
+    [startHour] => 10:30:00+01:00
+    [endHour] => 12:30:00+01:00
+    [id_ressources] => 12825,3675,640
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Coucou les congolaise
+    [date] => 2025-01-09
+    [startHour] => 10:30:00+01:00
+    [endHour] => 12:30:00+01:00
+    [id_ressources] => 12828,3675,678
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Coucou les congolais 2
+    [date] => 2025-01-07
+    [startHour] => 11:00:00+01:00
+    [endHour] => 13:00:00+01:00
+    [id_ressources] => 12814,62554,634
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => FEIN FEIN
+    [date] => 2025-01-22
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 12829,3675,782
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => FEIN 2
+    [date] => 2025-01-07
+    [startHour] => 17:00:00+01:00
+    [endHour] => 19:00:00+01:00
+    [id_ressources] => 15161,20776,640
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => CHang
+    [date] => 2025-01-07
+    [startHour] => 08:00:00+01:00
+    [endHour] => 10:00:00+01:00
+    [id_ressources] => 12829,77410,641
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => TRy me 
+    [date] => 2025-01-15
+    [startHour] => 11:00:00+01:00
+    [endHour] => 13:00:00+01:00
+    [id_ressources] => 12829,3675,641
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => test
+    [date] => 2025-01-07
+    [startHour] => 11:00:00+01:00
+    [endHour] => 13:00:00+01:00
+    [id_ressources] => 10022,3675,684
+)
