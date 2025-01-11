@@ -313,6 +313,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         .then(data => {
                             if (data.success) {
                                 alert('Créneau ajouté à la table avec succès !');
+                                window.location.href = 'menu.php'; // Redirection après l'alerte
                             } else {
                                 alert('Erreur lors de l\'ajout : ' + data.message);
                             }
