@@ -206,3 +206,43 @@ Array
     [endHour] => 10:30:00+01:00
     [id_ressources] => 10022,675,677
 )
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Thévenoux
+    [date] => 2025-01-09
+    [startHour] => 08:00:00+01:00
+    [endHour] => 10:00:00+01:00
+    [id_ressources] => 15158,10022,19527,9924,678
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Thévenoux
+    [date] => 2025-01-07
+    [startHour] => 10:00:00+01:00
+    [endHour] => 12:00:00+01:00
+    [id_ressources] => 15163,3675,684
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Thévenoux
+    [date] => 2025-01-09
+    [startHour] => 08:00:00+01:00
+    [endHour] => 10:00:00+01:00
+    [id_ressources] => 266,3675,685
+)
+Début du script
+Array
+(
+    [activityId] => 0
+    [name] => Thévenoux
+    [date] => 2025-01-09
+    [startHour] => 08:00:00+01:00
+    [endHour] => 10:00:00+01:00
+    [id_ressources] => 266,3675,685
+)

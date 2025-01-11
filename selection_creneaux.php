@@ -19,7 +19,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Résultats</title>
-    <script src="fullcalendar/index.global.min.js"></script>
+    <script src="libs/index.global.min.js"></script>
     
     <style>
         #calendar {
@@ -59,15 +59,19 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             require_once 'db_connection.php'; 
 
         try {
+            
+            // affichage des données POST
+            //print_r($_POST);
 
             // Récupération des données POST
 
-            $duree = intval($_POST['duree']); // Durée en minutes
             $name = $_POST['name'];
             $ressources = $_POST['ressources'] ?? null;
+            $duree = intval($_POST['duree']); // Durée en minutes
             $date = $_POST['date'];
             $id = intval($_POST['id']) ?? 0; //0 = nouvelle activité
             $id_ressources = $_POST['id_ressources'] ?? null;
+
             
             // Si on a pas d'IDADE pour les ressources (ressources entrées lors de la création de l'activité)
             // on va chercher les IDADE correspondants aux noms des ressources

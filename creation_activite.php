@@ -5,72 +5,208 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: index.php");
     exit;
 }
-?>
 
+require 'db_connection.php';
+
+// On récupère name, type_id depuis la table ressources
+try {
+    $stmt = $pdo->prepare("SELECT name, type_id FROM ressources");
+    $stmt->execute();
+    $allRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    die("Erreur lors de la récupération des ressources : " . $e->getMessage());
+}
+
+// On trie chaque nom en fonction du type_id
+$resourcesGroupes = [];
+$resourcesProfs   = [];
+$resourcesSalles  = [];
+
+foreach ($allRows as $row) {
+    switch ($row['type_id']) {
+        case 1:
+            $resourcesGroupes[] = $row['name'];
+            break;
+        case 2:
+            $resourcesProfs[]   = $row['name'];
+            break;
+        case 3:
+            $resourcesSalles[]  = $row['name'];
+            break;
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Configuration de l'EDT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Feuille de style perso -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Awesomplete : Autocomplétion inline -->
+    <link rel="stylesheet" href="libs/awesomeplete.min.css" />
+    <script src="libs/awesomeplete.min.js"></script>
+
     <script>
-        function addField(containerId) {
-            const container = document.getElementById(containerId);
-            const fields = container.querySelectorAll("input[type='text']");
-            if (fields.length < 2) {
-                const input = document.createElement("input");
-                input.type = "text";
-                input.placeholder = "Entrez une valeur";
-                input.required = true;
+    // On prépare nos tableaux JS pour la vérification ET l'autocomplétion
+    const resourcesGroupes = <?php echo json_encode($resourcesGroupes); ?>;
+    const resourcesProfs   = <?php echo json_encode($resourcesProfs); ?>;
+    const resourcesSalles  = <?php echo json_encode($resourcesSalles); ?>;
 
-                const removeBtn = document.createElement("button");
-                removeBtn.type = "button";
-                removeBtn.textContent = "-";
-                removeBtn.classList.add("remove-btn");
-                removeBtn.onclick = function() {
-                    container.removeChild(input);
-                    container.removeChild(removeBtn);
-                };
+    /**
+     * @param {HTMLInputElement} input 
+     * @param {"groupes"|"profs"|"salles"} type
+     */
+    function initAwesomplete(input, type) {
+        let list;
+        if (type === "groupes") list = resourcesGroupes;
+        else if (type === "profs") list = resourcesProfs;
+        else if (type === "salles") list = resourcesSalles;
 
-                container.appendChild(input);
-                container.appendChild(removeBtn);
-            }
-        }
-
-        // Fonction appelée juste avant l'envoi (submit) du formulaire
-        function fusionnerRessources(event) {
-            // Récupération de tous les inputs de chaque container
-            const groupesInputs = document.querySelectorAll("#groupes-container input[type='text']");
-            const profsInputs   = document.querySelectorAll("#profs-container input[type='text']");
-            const sallesInputs  = document.querySelectorAll("#salles-container input[type='text']");
-
-            // Transformation en tableaux simples (pour .map)
-            const groupes = Array.from(groupesInputs).map(input => input.value.trim());
-            const profs   = Array.from(profsInputs).map(input => input.value.trim());
-            const salles  = Array.from(sallesInputs).map(input => input.value.trim());
-
-            // Fusion en un seul tableau
-            const ressourcesArray = [...groupes, ...profs, ...salles];
-
-            // Conversion en chaîne de caractères (ex: "groupe1,groupe2,prof1,salle1")
-            const ressources = ressourcesArray.join(',');
-
-            // Injection dans le champ caché
-            document.getElementById('ressources').value = ressources;
-        }
-
-        // Dès que la page est chargée, on attache notre écouteur d'événement "submit"
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('form-activite').addEventListener('submit', fusionnerRessources);
+        // Crée l'objet Awesomplete attaché à `input`
+        new Awesomplete(input, {
+            list: list,
+            minChars: 1,       // nb caractères avant d'afficher la liste
+            autoFirst: true    // sélectionne automatiquement le 1er item
         });
+    }
+
+    /**
+     * Ajoute un champ texte supplémentaire (max 2 par container).
+     * @param {string} containerId - ex: "groupes-container"
+     * @param {string} type        - ex: "groupes", "profs", "salles"
+     */
+    function addField(containerId, type) {
+        const container = document.getElementById(containerId);
+        const fields = container.querySelectorAll("input[type='text']");
+
+        if (fields.length < 2) {
+            // Crée un conteneur pour l'input et le bouton de suppression
+            const fieldContainer = document.createElement("div");
+            fieldContainer.classList.add("field-container");
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Entrez une 2ème valeur";
+            input.required = true;
+
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.textContent = "-";
+            removeBtn.classList.add("remove-btn");
+            removeBtn.onclick = function() {
+                container.removeChild(fieldContainer); // Supprime tout le conteneur
+            };
+
+            // Ajoute les éléments au conteneur
+            fieldContainer.appendChild(input);
+            fieldContainer.appendChild(removeBtn);
+
+            // Ajoute le conteneur au DOM
+            container.appendChild(fieldContainer);
+
+            // Initialise Awesomplete pour le nouvel input
+            initAwesomplete(input, type);
+        }
+    }
+
+
+    /**
+     * Vérifie si la valeur saisie est dans le tableau correspondant au type.
+     * @param {string} value
+     * @param {"groupes"|"profs"|"salles"} type
+     * @returns {boolean}
+     */
+    function isResourceValid(value, type) {
+        let list;
+        if (type === "groupes") list = resourcesGroupes;
+        else if (type === "profs") list = resourcesProfs;
+        else list = resourcesSalles;
+        return list.includes(value.trim());
+    }
+
+    // Fonction appelée juste avant l'envoi (submit) du formulaire
+    function fusionnerRessources(event) {
+        // Récupération de tous les inputs de chaque container
+        const groupesInputs = document.querySelectorAll("#groupes-container input[type='text']");
+        const profsInputs   = document.querySelectorAll("#profs-container input[type='text']");
+        const sallesInputs  = document.querySelectorAll("#salles-container input[type='text']");
+
+        // Pour la vérification, on doit savoir à quel type chaque input correspond.
+        // Ici, comme tous les inputs de #groupes-container sont "groupes", etc.
+        // on va faire un check commun.
+        
+        let groupes = [];
+        for (let input of groupesInputs) {
+            const val = input.value.trim();
+            // Vérif
+            if (!isResourceValid(val, "groupes")) {
+                alert("Le groupe \"" + val + "\" n'existe pas parmi les Groupes.\nVeuillez ressaisir.");
+                event.preventDefault();
+                return;
+            }
+            groupes.push(val);
+        }
+
+        let profs = [];
+        for (let input of profsInputs) {
+            const val = input.value.trim();
+            if (!isResourceValid(val, "profs")) {
+                alert("Le professeur \"" + val + "\" n'existe pas dans la base.\nVeuillez ressaisir.");
+                event.preventDefault();
+                return;
+            }
+            profs.push(val);
+        }
+
+        let salles = [];
+        for (let input of sallesInputs) {
+            const val = input.value.trim();
+            if (!isResourceValid(val, "salles")) {
+                alert("La salle \"" + val + "\" n'existe pas dans la base.\nVeuillez ressaisir.");
+                event.preventDefault();
+                return;
+            }
+            salles.push(val);
+        }
+
+        // Si tout est OK, on fusionne
+        const allEntries = [...groupes, ...profs, ...salles];
+        document.getElementById('ressources').value = allEntries.join(',');
+    }
+
+    // Mise en place des écoutes
+    window.addEventListener('DOMContentLoaded', () => {
+        // Init Awesomplete pour les champs initiaux
+        initAwesomplete(document.querySelector("#groupes-container input[type='text']"), "groupes");
+        initAwesomplete(document.querySelector("#profs-container  input[type='text']"), "profs");
+        initAwesomplete(document.querySelector("#salles-container input[type='text']"), "salles");
+
+        // Attache l'événement sur le formulaire
+        document.getElementById('form-activite').addEventListener('submit', fusionnerRessources);
+
+        // Limitation de l'input date aux jours ouvrés (lundi à vendredi)
+        const dateInput = document.getElementById('date');
+        dateInput.addEventListener('input', () => {
+            const selectedDate = new Date(dateInput.value);
+            const dayOfWeek = selectedDate.getUTCDay(); // 0=dimanche, 6=samedi
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                alert("Veuillez sélectionner un jour ouvré (lundi à vendredi).");
+                dateInput.value = ""; // Réinitialiser l'input
+            }
+        });
+    });
     </script>
 </head>
 <body>
+
     <h1>Ajout d'une activité</h1>
-    <!-- Notez l'id="form-activite" pour le script -->
+
+    <!-- Le formulaire -->
     <form id="form-activite" action="selection_creneaux.php" method="POST">
         
         <div class="field-group">
@@ -78,28 +214,28 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             <input type="text" id="name" name="name" placeholder="Entrez le nom de l'activité" required>
         </div>
 
+        <!-- Groupes (type_id = 1) -->
         <div class="field-group" id="groupes-container">
             <label>Groupes :</label>
-            <!-- On enlève name="groupes[]" -->
             <input type="text" placeholder="Entrez un groupe" required>
-            <button type="button" class="add-btn" onclick="addField('groupes-container')">+</button>
+            <button type="button" class="add-btn" onclick="addField('groupes-container','groupes')">+</button>
         </div>
 
+        <!-- Professeurs (type_id = 2) -->
         <div class="field-group" id="profs-container">
             <label>Professeurs :</label>
-            <!-- On enlève name="profs[]" -->
             <input type="text" placeholder="Entrez un professeur" required>
-            <button type="button" class="add-btn" onclick="addField('profs-container')">+</button>
+            <button type="button" class="add-btn" onclick="addField('profs-container','profs')">+</button>
         </div>
         
+        <!-- Salles (type_id = 3) -->
         <div class="field-group" id="salles-container">
             <label>Salles :</label>
-            <!-- On enlève name="salles[]" -->
             <input type="text" placeholder="Entrez une salle" required>
-            <button type="button" class="add-btn" onclick="addField('salles-container')">+</button>
+            <button type="button" class="add-btn" onclick="addField('salles-container','salles')">+</button>
         </div>
 
-        <!-- Le champ caché qui contiendra la fusion -->
+        <!-- Le champ caché qui contiendra la fusion de toutes les ressources validées -->
         <input type="hidden" id="ressources" name="ressources" />
 
         <div class="field-group">
@@ -112,7 +248,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 <option value="75">1h 15min</option>
                 <option value="90">1h 30min</option>
                 <option value="105">1h 45min</option>
-                <option value="120">2h 0min</option>
+                <option value="120" selected>2h 0min</option> <!-- Valeur par défaut -->    
                 <option value="135">2h 15min</option>
                 <option value="150">2h 30min</option>
                 <option value="165">2h 45min</option>
@@ -146,22 +282,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         </div>
 
         <button type="submit">Envoyer</button>
-
-        <script>
-            // Limitation de l'input date aux jours ouvrés (lundi à vendredi)
-            const dateInput = document.getElementById('date');
-
-            dateInput.addEventListener('input', () => {
-                const selectedDate = new Date(dateInput.value);
-                const dayOfWeek = selectedDate.getUTCDay(); // 0 = dimanche, 6 = samedi
-
-                if (dayOfWeek === 0 || dayOfWeek === 6) {
-                    // Afficher une alerte si c'est un jour non ouvré
-                    alert("Veuillez sélectionner un jour ouvré (lundi à vendredi).");
-                    dateInput.value = ""; // Réinitialiser l'input
-                }
-            });
-        </script>
     </form>
+
 </body>
 </html>
