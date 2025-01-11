@@ -1,0 +1,78 @@
+body {
+    font-family: "Comic Sans MS";
+    background-color: rgb(242, 237, 231);
+    margin: 0; 
+    padding: 0; 
+}
+h1 {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+fieldset {
+    margin: 20px;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+}
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px; 
+    text-align: center;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+tr:nth-child(odd) {
+    background-color: rgb(170, 242, 248);
+}
+.btn-accept {
+    background-color: rgb(115, 227, 124);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.btn-accept:hover {
+    background-color: rgb(69, 147, 81);
+}
+.btn-refuse {
+    background-color: rgb(220, 43, 43);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.btn-refuse:hover {
+    background-color: rgb(142, 29, 29);
+}
+
+/* Styles basiques pour les onglets */
+.tab {
+    display: flex; /* Utilisation de Flexbox pour l'alignement */
+    justify-content: center; /* Centre les boutons horizontalement */
+    align-items: center; /* Centre les éléments verticalement */
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 1em;
+    padding: 10px 0; /* Ajoute un peu d'espace autour */
+}
+.tab button {
+    background-color: #007bff; /* Nouvelle couleur : bleu */
+    color: #fff; /* Couleur du texte */
+    border: none;
+    padding: 15px 25px; /* Boutons plus grands */
+    font-size: 18px; /* Texte plus grand */
+    cursor: pointer;
+    transition: 0.3s;
+    margin: 0 10px; /* Espacement entre les boutons */
+    border-radius: 5px; /* Coins arrondis */
+}
+.tab button.active {
+    background-color: #0056b3; /* Couleur pour l'onglet actif : bleu foncé */
+    color: #fff;
+}
+.tabcontent {
+    display: none; /* Par défaut, on les masque */
+    padding: 15px 0; 
+}

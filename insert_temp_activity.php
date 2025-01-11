@@ -49,12 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($activityId && $name && $date && $startHour && $endHour) {
         try {
             // Calcul de la semaine scolaire
-            $startSchoolDate = new DateTime('2024-09-03');
+            $startSchoolDate = new DateTime('2024-08-19');
             $currentDate = new DateTime($date);
             $weekInterval = $startSchoolDate->diff($currentDate)->days / 7;
-            $week = floor($weekInterval) + 2; // Semaine 2 commence au 2024-09-03
-            // Calcul du jour (1 = lundi, ..., 7 = dimanche)
-            $day = $currentDate->format('N');
+            $week = floor($weekInterval);
+
+            // Calcul du jour (0 = lundi, ..., 6 = dimanche)
+            $day = $currentDate->format('N') - 1;
+
 
             // Calcul des slots
             $startTime = new DateTime($startHour);
@@ -62,10 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $baseSlot = 4; // 8h correspond au slot 4
             $startSlot = $baseSlot + (int)(($startTime->format('H') * 60 + $startTime->format('i')) / 15 - (8 * 60 / 15));
-            $absoluteSlot = $startSchoolDate->diff($currentDate)->days * 96 + $startSlot; // 96 slots par jour
+            $absoluteSlot = $startSchoolDate->diff($currentDate)->days * 66 + $startSlot; // 66 slots par jour
 
-            // Calcul de la durée en minutes
-            $duration = $startTime->diff($endTime)->h * 60 + $startTime->diff($endTime)->i;
+            // Calcul de la durée en slots
+            $duration = ($startTime->diff($endTime)->h * 60 + $startTime->diff($endTime)->i) / 15;
 
             // Valeurs par défaut
             $repetition = 0;
