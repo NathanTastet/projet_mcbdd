@@ -22,19 +22,48 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <script src="libs/index.global.min.js"></script>
     
     <style>
+        /* Conteneur flex pour agencer flèches et calendrier */
+        .calendar-nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; /* Espace sous le conteneur */
+        }
+
+        /* Réduction des marges pour les boutons fléchés */
+        #prevWeekBtn, #nextWeekBtn {
+            background-color: #3498db;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: background-color 0.3s;
+        }
+
+        #prevWeekBtn:hover, #nextWeekBtn:hover {
+            background-color: #2980b9;
+        }
+
         #calendar {
-            max-width: 900px;
-            margin: 40px auto;
+            width: 900px;
+            min-height: 400px; /* Ajustez selon vos besoins */
+            margin: 20px 5px; 
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* Conserver le style du footer et des autres boutons */
         .info {
             text-align: center;
             margin: 20px auto;
             font-size: 16px;
             font-weight: bold;
         }
+
         button {
             display: block;
             margin: 20px auto;
@@ -49,6 +78,19 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         button:hover {
             background: #2980b9;
         }
+
+        footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Espacement réduit entre les boutons du footer */
+            flex-wrap: wrap;
+        }
+        footer button {
+            display: inline-block;
+            margin: 10px 5px;
+        }
+
+
     </style>
 </head>
 <body>
@@ -302,7 +344,12 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         }
 
         ?>
-        <div id="calendar"></div>
+        <div class="calendar-nav-container">
+            <button id="prevWeekBtn">←</button>
+            <div id="calendar"></div>
+            <button id="nextWeekBtn">→</button>
+        </div>
+
         <footer>
             <button onclick="window.location='index.php'">Retour au menu principal</button>
             <button onclick="window.history.back()">Retour à la page précédente</button>
@@ -385,7 +432,52 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             }
         });
         calendar.render();
+
+        // Gestion des boutons de navigation semaine précédente/suivante
+        document.getElementById('prevWeekBtn').addEventListener('click', function() {
+            changeWeek(-7);
+        });
+        document.getElementById('nextWeekBtn').addEventListener('click', function() {
+            changeWeek(7);
+        });
+
+        function changeWeek(offsetDays) {
+            // Récupérer la date actuelle depuis PHP
+            let currentDate = new Date('<?php echo $date; ?>');
+            // Modifier la date de +7 ou -7 jours
+            currentDate.setDate(currentDate.getDate() + offsetDays);
+            let newDateStr = currentDate.toISOString().split('T')[0];
+
+            // Créer dynamiquement un formulaire pour soumettre les données en POST
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'selection_creneaux.php';
+
+            // Définir les champs à renvoyer, en utilisant les variables PHP pour conserver les autres données
+            const fields = {
+                name: "<?php echo htmlspecialchars($name, ENT_QUOTES); ?>",
+                ressources: "<?php echo isset($ressources) ? htmlspecialchars($ressources, ENT_QUOTES) : ''; ?>",
+                duree: "<?php echo $duree; ?>",
+                date: newDateStr,
+                id: "<?php echo $id; ?>",
+                id_ressources: "<?php echo isset($id_ressources) ? htmlspecialchars($id_ressources, ENT_QUOTES) : ''; ?>"
+            };
+
+            // Ajouter chaque champ comme input caché dans le formulaire
+            for (let key in fields) {
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            // Ajouter le formulaire au body et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+        }
     });
+
 
         </script>
     </fieldset>
