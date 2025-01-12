@@ -98,7 +98,7 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
     <style>
         /* Styles spécifiques pour la pagination et les filtres */
         .filters {
-            max-width: 90%; /* Augmente la largeur */
+            max-width: 90%;
             margin: 20px auto;
             background: #ffffff;
             padding: 15px;
@@ -107,45 +107,48 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
         }
 
         .filters form {
-            max-width: 80%; /* Augmente la largeur */
+            max-width: 100%;
             display: flex;
-            flex-wrap: nowrap;
-            gap: 20px;
+            flex-wrap: wrap; /* Permet un comportement responsive */
+            gap: 15px;
             align-items: center;
-            justify-content: space-between; 
+            justify-content: space-between;
         }
+
         .filters .field-group select,
         .filters .field-group input {
-            min-width: 150px; 
-            flex: 1; 
+            min-width: 150px;
+            flex: 1;
         }
 
         .filters button {
             flex-shrink: 0;
             padding: 10px 20px;
         }
+
         .filters .field-group {
-            margin-right: 10px; 
+            flex: 1;
+            margin-right: 10px;
         }
 
         #search_term {
-            min-width: 400px;
+            min-width: 30%;
         }
-
 
         .date-group {
             display: flex;
+            flex-wrap: wrap; /* Support des petits écrans */
             gap: 15px;
             flex: 1;
         }
-        .filters button {
-            padding: 10px 20px;
-        }
+
         .pagination {
             text-align: center;
             margin: 20px 0;
         }
-        .pagination a, .pagination span {
+
+        .pagination a,
+        .pagination span {
             display: inline-block;
             margin: 0 5px;
             padding: 8px 12px;
@@ -154,15 +157,57 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
             border: 1px solid #3498db;
             border-radius: 4px;
         }
+
         .pagination a:hover {
             background-color: #3498db;
             color: #fff;
         }
+
         .pagination .current-page {
             background-color: #3498db;
             color: #fff;
             border-color: #3498db;
             cursor: default;
+        }
+
+        /* Styles responsives */
+        @media (max-width: 768px) {
+            .filters form {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .filters .field-group {
+                flex: 1 1 auto;
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .filters button {
+                width: 100%;
+            }
+
+            #search_term {
+                min-width: 100%;
+            }
+
+            .date-group {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pagination a,
+            .pagination span {
+                margin: 0 3px;
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+
+            .filters {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -195,15 +240,13 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
                 </select>
             </div>
 
-            <div class="date-group">
-                <div class="field-group">
-                    <label for="date_from">Date de début</label>
-                    <input type="date" id="date_from" name="date_from" value="<?php echo htmlspecialchars($date_from); ?>">
-                </div>
-                <div class="field-group">
-                    <label for="date_to">Date de fin</label>
-                    <input type="date" id="date_to" name="date_to" value="<?php echo htmlspecialchars($date_to); ?>">
-                </div>
+            <div class="field-group">
+                <label for="date_from">Date de début</label>
+                <input type="date" id="date_from" name="date_from" value="<?php echo htmlspecialchars($date_from); ?>">
+            </div>
+            <div class="field-group">
+                <label for="date_to">Date de fin</label>
+                <input type="date" id="date_to" name="date_to" value="<?php echo htmlspecialchars($date_to); ?>">
             </div>
 
             <div class="field-group">
