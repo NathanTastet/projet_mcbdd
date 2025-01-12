@@ -3,9 +3,9 @@ session_start();
 
 
 
-// On définit des identifiants ADMIN en dur (attention : pas pour la prod !)
+// On définit des identifiants ADMIN en dur (a hasher et stocker dans une base de données pour + de sécurité)
 $adminUsername = "root";
-$adminPassword = "secret"; // En prod, on ne le met pas en clair !
+$adminPassword = "secret";
 
 // Si le formulaire "invité" est soumis
 if (isset($_POST['guest_login'])) {

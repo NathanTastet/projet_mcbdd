@@ -48,7 +48,6 @@ tr:nth-child(odd) {
     background-color: rgb(142, 29, 29);
 }
 
-/* Styles basiques pour les onglets */
 .tab {
     display: flex; /* Utilisation de Flexbox pour l'alignement */
     justify-content: center; /* Centre les boutons horizontalement */

@@ -44,7 +44,6 @@ foreach ($allRows as $row) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Configuration de l'EDT</title>
 
-    <!-- Feuille de style perso -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- Awesomplete : Autocomplétion inline -->

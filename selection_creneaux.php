@@ -1,6 +1,6 @@
 <?php
 session_start();
-//erreurs
+//lecture des erreurs
 /* ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
@@ -22,15 +22,13 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <script src="libs/index.global.min.js"></script>
     
     <style>
-        /* Conteneur flex pour agencer flèches et calendrier */
         .calendar-nav-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px; /* Espace sous le conteneur */
+            margin-bottom: 20px;
         }
 
-        /* Réduction des marges pour les boutons fléchés */
         #prevWeekBtn, #nextWeekBtn {
             background-color: #3498db;
             border: none;
@@ -49,14 +47,13 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
         #calendar {
             width: 900px;
-            min-height: 400px; /* Ajustez selon vos besoins */
+            min-height: 400px; 
             margin: 20px 5px; 
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Conserver le style du footer et des autres boutons */
         .info {
             text-align: center;
             margin: 20px auto;
@@ -82,7 +79,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         footer {
             display: flex;
             justify-content: center;
-            gap: 10px; /* Espacement réduit entre les boutons du footer */
+            gap: 10px; 
             flex-wrap: wrap;
         }
         footer button {
