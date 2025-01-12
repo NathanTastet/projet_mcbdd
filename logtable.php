@@ -98,23 +98,41 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
     <style>
         /* Styles spécifiques pour la pagination et les filtres */
         .filters {
-            max-width: 800px;
+            max-width: 90%; /* Augmente la largeur */
             margin: 20px auto;
             background: #ffffff;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .filters form {
+            max-width: 80%; /* Augmente la largeur */
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
+            flex-wrap: nowrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between; 
+        }
+        .filters .field-group select,
+        .filters .field-group input {
+            min-width: 150px; 
+            flex: 1; 
+        }
+
+        .filters button {
+            flex-shrink: 0;
+            padding: 10px 20px;
         }
         .filters .field-group {
-            flex: 1;
-            min-width: 150px;
+            margin-right: 10px; 
         }
+
+        #search_term {
+            min-width: 400px;
+        }
+
+
         .date-group {
             display: flex;
             gap: 15px;
@@ -188,12 +206,12 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
                 </div>
             </div>
 
-            <div class="field-group" style="flex-basis:100%;">
+            <div class="field-group">
                 <label for="search_term">Recherche par terme</label>
                 <input type="text" id="search_term" name="search_term" value="<?php echo htmlspecialchars($term_filter); ?>" placeholder="Entrez un terme de recherche">
             </div>
 
-            <div class="field-group" style="flex-basis:100%;">
+            <div class="field-group">
                 <button type="submit">Filtrer</button>
             </div>
         </form>
@@ -202,29 +220,6 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
     <div class="log-table-container">
     <?php
     if ($total_results > 0) {
-        echo "<table>";
-        echo "<tr>
-                <th>ID</th>
-                <th>Table</th>
-                <th>Opération</th>
-                <th>Anciennes Valeurs</th>
-                <th>Nouvelles Valeurs</th>
-                <th>Date/Heure</th>
-                <th>Utilisateur</th>
-              </tr>";
-
-        foreach ($logs as $row) {
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['log_id']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['table_name']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['operation']) . "</td>";
-            echo "<td>" . nl2br(htmlspecialchars($row['old_values'])) . "</td>";
-            echo "<td>" . nl2br(htmlspecialchars($row['new_values'])) . "</td>";
-            echo "<td>" . htmlspecialchars($row['changed_at']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['changed_by']) . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
 
         // Pagination
         if ($total_pages > 1) {
@@ -281,6 +276,30 @@ $operations = $pdo->query("SELECT DISTINCT operation FROM journal ORDER BY opera
 
             echo '</div>';
         }
+
+        echo "<table>";
+        echo "<tr>
+                <th>ID</th>
+                <th>Table</th>
+                <th>Opération</th>
+                <th>Anciennes Valeurs</th>
+                <th>Nouvelles Valeurs</th>
+                <th>Date/Heure</th>
+                <th>Utilisateur</th>
+              </tr>";
+
+        foreach ($logs as $row) {
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['log_id']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['table_name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['operation']) . "</td>";
+            echo "<td>" . nl2br(htmlspecialchars($row['old_values'])) . "</td>";
+            echo "<td>" . nl2br(htmlspecialchars($row['new_values'])) . "</td>";
+            echo "<td>" . htmlspecialchars($row['changed_at']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['changed_by']) . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
     } else {
         echo "<p class='no-result'>Aucun log disponible.</p>";
     }

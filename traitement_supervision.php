@@ -118,17 +118,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // **Cas Création** : l'activité n'existe pas encore dans "activities"
                 $sqlInsertAct = "
                 INSERT INTO activities 
-                (id, name, activityID, week, day, slot, absoluteSlot, date, startHour, endHour, duration, color)
+                (id, name, repetition, session, activityID, week, day, slot, absoluteSlot, date, startHour, endHour, duration, color)
                 VALUES 
-                (:id, :name, :activityID, :week, :day, :slot, :absoluteSlot, :date, :startHour, :endHour, :duration, :color)
+                (:id, :name, :repetition, :session, :activityID, :week, :day, :slot, :absoluteSlot, :date, :startHour, :endHour, :duration, :color)
                 ";
                 $stmtInsertAct = $pdo->prepare($sqlInsertAct);
                 $stmtInsertAct->execute([
                 ':id'   => $id,
-                ':activityID'   => 0,
                 ':name'         => $tempRow['name'],
-                ':repetition'   => $tempRow['repetition'],
-                ':session'      => $tempRow['session'],
+                ':activityID'   => 0,
+                ":repetition"   => 0,
+                ":session"      => 0,
                 ':week'         => $tempRow['week'],
                 ':day'          => $tempRow['day'],
                 ':slot'         => $tempRow['slot'],
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':startHour'    => $tempRow['startHour'],
                 ':endHour'      => $tempRow['endHour'],
                 ':duration'     => $tempRow['duration'],
-                ':color'        => $tempRow['color']
+                ':color'        => '255,255,255'
                 ]);
                 
                 // b) Insérer les ressources dans "activity_resource"
