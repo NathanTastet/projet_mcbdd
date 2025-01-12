@@ -37,12 +37,15 @@ $userRole = isset($_SESSION['role']) ? $_SESSION['role'] : 'guest';
         <a href="creation_activite.php">Créer une nouvelle activité</a>
         <a href="modification_activite.php">Modifier une activité existante</a>
 
-        <!-- Afficher le lien ADMIN uniquement si l'utilisateur est admin -->
+        <!-- Afficher les liens ADMIN uniquement si l'utilisateur est admin -->
         <?php if ($userRole === 'admin'): ?>
             <a href="supervision.php">Supervision (ADMIN)</a>
+            <a href="logtable.php">Table de logs (ADMIN)</a>
         <?php else: ?>
             <p class="access-restricted">Supervision (ADMIN) - Accès restreint</p>
+            <p class="access-restricted">Table de logs (ADMIN) - Accès restreint</p>
         <?php endif; ?>
+        
     </div>
 
     <!-- Bouton de déconnexion, en rouge -->

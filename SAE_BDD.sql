@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : sam. 11 jan. 2025 à 16:05
+-- Généré le : dim. 12 jan. 2025 à 11:07
 -- Version du serveur : 8.0.40-0ubuntu0.22.04.1
 -- Version de PHP : 8.1.2-1ubuntu2.20
 
@@ -7510,6 +7510,107 @@ INSERT INTO `activities` (`id`, `repetition`, `session`, `activityId`, `name`, `
 (162222, 0, 0, 117104, 'TP AUTO3 : Rattrapage', 21, 4, 4, 9970, '2025-01-17', '08:00:00', '10:00:00', 8, '102,255,204'),
 (162234, 0, 0, 117109, 'TP RES3 : Rattrapages', 21, 4, 24, 9990, '2025-01-17', '13:00:00', '15:00:00', 8, '105,255,115'),
 (162249, 0, 0, 11653, 'TP INFO3 : Rattrapage', 21, 4, 12, 9978, '2025-01-17', '10:00:00', '12:00:00', 8, '220,222,222');
+
+--
+-- Déclencheurs `activities`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_activities_after_delete` AFTER DELETE ON `activities` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, old_values, changed_by)
+  VALUES (
+    'activities',
+    'DELETE',
+    CONCAT(
+      'id=', OLD.id,
+      ', repetition=', OLD.repetition,
+      ', session=', OLD.session,
+      ', activityId=', OLD.activityId,
+      ', name=', OLD.name,
+      ', week=', OLD.week,
+      ', day=', OLD.day,
+      ', slot=', OLD.slot,
+      ', absoluteSlot=', OLD.absoluteSlot,
+      ', date=', OLD.date,
+      ', startHour=', OLD.startHour,
+      ', endHour=', OLD.endHour,
+      ', duration=', OLD.duration,
+      ', color=', OLD.color
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_activities_after_insert` AFTER INSERT ON `activities` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, new_values, changed_by)
+  VALUES (
+    'activities',
+    'INSERT',
+    CONCAT(
+      'id=', NEW.id,
+      ', repetition=', NEW.repetition,
+      ', session=', NEW.session,
+      ', activityId=', NEW.activityId,
+      ', name=', NEW.name,
+      ', week=', NEW.week,
+      ', day=', NEW.day,
+      ', slot=', NEW.slot,
+      ', absoluteSlot=', NEW.absoluteSlot,
+      ', date=', NEW.date,
+      ', startHour=', NEW.startHour,
+      ', endHour=', NEW.endHour,
+      ', duration=', NEW.duration,
+      ', color=', NEW.color
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_activities_after_update` AFTER UPDATE ON `activities` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, old_values, new_values, changed_by)
+  VALUES (
+    'activities',
+    'UPDATE',
+    CONCAT(
+      'id=', OLD.id,
+      ', repetition=', OLD.repetition,
+      ', session=', OLD.session,
+      ', activityId=', OLD.activityId,
+      ', name=', OLD.name,
+      ', week=', OLD.week,
+      ', day=', OLD.day,
+      ', slot=', OLD.slot,
+      ', absoluteSlot=', OLD.absoluteSlot,
+      ', date=', OLD.date,
+      ', startHour=', OLD.startHour,
+      ', endHour=', OLD.endHour,
+      ', duration=', OLD.duration,
+      ', color=', OLD.color
+    ),
+    CONCAT(
+      'id=', NEW.id,
+      ', repetition=', NEW.repetition,
+      ', session=', NEW.session,
+      ', activityId=', NEW.activityId,
+      ', name=', NEW.name,
+      ', week=', NEW.week,
+      ', day=', NEW.day,
+      ', slot=', NEW.slot,
+      ', absoluteSlot=', NEW.absoluteSlot,
+      ', date=', NEW.date,
+      ', startHour=', NEW.startHour,
+      ', endHour=', NEW.endHour,
+      ', duration=', NEW.duration,
+      ', color=', NEW.color
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -48033,6 +48134,63 @@ INSERT INTO `activity_resource` (`id`, `idActivity`, `idRessource`) VALUES
 (80680, 88144, 22087),
 (80681, 88144, 787);
 
+--
+-- Déclencheurs `activity_resource`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_activity_resource_after_delete` AFTER DELETE ON `activity_resource` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, old_values, changed_by)
+  VALUES (
+    'activity_resource',
+    'DELETE',
+    CONCAT(
+      'id=', OLD.id,
+      ', idActivity=', OLD.idActivity,
+      ', idRessource=', OLD.idRessource
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_activity_resource_after_insert` AFTER INSERT ON `activity_resource` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, new_values, changed_by)
+  VALUES (
+    'activity_resource',
+    'INSERT',
+    CONCAT(
+      'id=', NEW.id,
+      ', idActivity=', NEW.idActivity,
+      ', idRessource=', NEW.idRessource
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_activity_resource_after_update` AFTER UPDATE ON `activity_resource` FOR EACH ROW BEGIN
+  INSERT INTO journal (table_name, operation, old_values, new_values, changed_by)
+  VALUES (
+    'activity_resource',
+    'UPDATE',
+    CONCAT(
+      'id=', OLD.id,
+      ', idActivity=', OLD.idActivity,
+      ', idRessource=', OLD.idRessource
+    ),
+    CONCAT(
+      'id=', NEW.id,
+      ', idActivity=', NEW.idActivity,
+      ', idRessource=', NEW.idRessource
+    ),
+    USER()
+  );
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -48191,6 +48349,22 @@ INSERT INTO `groupeApogee` (`id`, `idADE`, `apogee`) VALUES
 (139, 10957, 'BIB301'),
 (140, 13793, 'BIB303'),
 (141, 87116, 'LPIBC1');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `journal`
+--
+
+CREATE TABLE `journal` (
+  `log_id` int NOT NULL,
+  `table_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `operation` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `old_values` text COLLATE utf8mb4_general_ci,
+  `new_values` text COLLATE utf8mb4_general_ci,
+  `changed_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `changed_by` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -48815,6 +48989,12 @@ ALTER TABLE `groupeApogee`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `journal`
+--
+ALTER TABLE `journal`
+  ADD PRIMARY KEY (`log_id`);
+
+--
 -- Index pour la table `lst_type`
 --
 ALTER TABLE `lst_type`
@@ -48860,6 +49040,12 @@ ALTER TABLE `activity_resource`
 --
 ALTER TABLE `groupeApogee`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=142;
+
+--
+-- AUTO_INCREMENT pour la table `journal`
+--
+ALTER TABLE `journal`
+  MODIFY `log_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `lst_type`
