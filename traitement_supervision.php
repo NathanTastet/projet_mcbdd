@@ -85,29 +85,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
 
                 // b) Gérer les ressources :
-                //    - Supprimer les ressources existantes liées à cette activité
-                $sqlDelRes = "DELETE FROM activity_resource WHERE id = :id";
-                $stmtDelRes = $pdo->prepare($sqlDelRes);
-                $stmtDelRes->execute([':id' => $id]);
 
-                //    - Insérer les nouvelles ressources depuis "temp_activity_resources"
+                // Récupérer les ressources actuelles liées à l'activité
+                $sqlSelectCurrentRes = "
+                SELECT idRessource 
+                FROM activity_resource
+                WHERE idActivity = :id
+                ";
+                $stmtSelectCurrentRes = $pdo->prepare($sqlSelectCurrentRes);
+                $stmtSelectCurrentRes->execute([':id' => $id]);
+                $currentResources = $stmtSelectCurrentRes->fetchAll(PDO::FETCH_COLUMN);
+
+                // Récupérer les nouvelles ressources depuis "temp_activity_resources"
                 $sqlSelectTempRes = "
-                    SELECT idRessource 
-                    FROM temp_activity_resources
-                    WHERE idActivity = :tempId
+                SELECT idRessource 
+                FROM temp_activity_resources
+                WHERE idActivity = :tempId
                 ";
                 $stmtSelectTempRes = $pdo->prepare($sqlSelectTempRes);
                 $stmtSelectTempRes->execute([':tempId' => $tempId]);
-                $resources = $stmtSelectTempRes->fetchAll(PDO::FETCH_COLUMN);
+                $newResources = $stmtSelectTempRes->fetchAll(PDO::FETCH_COLUMN);
 
-                if ($resources) {
+                // Déterminer les ressources à supprimer (actuelles mais absentes des nouvelles)
+                $resourcesToDelete = array_diff($currentResources, $newResources);
+                if (!empty($resourcesToDelete)) {
+                    $sqlDelRes = "
+                        DELETE FROM activity_resource 
+                        WHERE idActivity = :id 
+                        AND idRessource IN (" . implode(',', array_fill(0, count($resourcesToDelete), '?')) . ")
+                    ";
+                    $stmtDelRes = $pdo->prepare($sqlDelRes);
+                    $stmtDelRes->execute(array_merge([$id], $resourcesToDelete));
+                }
+
+                // Déterminer les ressources à ajouter (nouvelles mais absentes des actuelles)
+                $resourcesToAdd = array_diff($newResources, $currentResources);
+                if (!empty($resourcesToAdd)) {
                     $sqlInsertRes = "
                         INSERT INTO activity_resource (idActivity, idRessource)
                         VALUES (:idActivity, :idRessource)
                     ";
                     $stmtInsertRes = $pdo->prepare($sqlInsertRes);
 
-                    foreach ($resources as $resId) {
+                    foreach ($resourcesToAdd as $resId) {
                         $stmtInsertRes->execute([
                             ':idActivity'  => $id,
                             ':idRessource' => $resId
